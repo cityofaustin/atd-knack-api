@@ -3,22 +3,30 @@ from datetime import datetime
 import _fieldmaps
 import _transforms
 
-class InventoryRequest(object):
+class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-
-    def __init__(self, data):
+    def __init__(self, data, type_= None):
 
         self.data = data
 
-        self.fieldmap = _fieldmaps.work_order_to_inventory_request
+        if type_ == "inventory_request":
+            self.fieldmap = _fieldmaps.work_order_to_inventory_request
+        
+        elif type_ == "inventory_transaction":
+            self.fieldmap = _fieldmaps.work_order_transactions_to_finance_transactions
+        
+        else:
+            raise Exception("Unspported record type. Choose `inventory_request` or `inventory_transaction`.") 
 
         self.payload = self._build_payload()
 
 
     def _build_payload(self):
-
+        """
+        Map input data to output fields. 
+        """
         payload = {}
 
         for field in self.fieldmap:
@@ -31,7 +39,7 @@ class InventoryRequest(object):
                     val = self._transform(val, field["transform_dest"])
 
             else:
-                # no source field, use default
+                # no source field, use default value
                 val = field.get("default")
 
             payload[field["dest"]] = val
@@ -41,6 +49,9 @@ class InventoryRequest(object):
     def _transform(self, val, transform):
         transform_func = getattr(_transforms, transform)
         return transform_func(val)
+
+
+
 
 if __name__ == "__main__":
     import logging

@@ -8,17 +8,23 @@ import pdb
 import knackpy
 
 from _logging import get_logger
-from _models import InventoryRequest
+from _models import RecordMap
 from secrets import *
 
 # todo
+# condtionally show "request all" button? and move to right of add items form?
+# if we're going to have 1 request per work order, we need to track "issued to" at the transaction level
+# and we need to look at/refactor the approval process and post-issue workflow
+# integrate task orders??? (yes :( )
 # reorg / fix imports
+# cance/edit functionality for "requested" transactions
+# what is the difference between transaction types "REQUEST" and "WORK ORDER"
 # what is the purpose of the UNSUBMITTED field?
 # what is the purpose of the Approval Needed field?
 # implment inventory request approval in data tracker and set request status based on it. but have to make sure only unsent transactions are approved/modified
 # set request approval automatically
 # get finance inventory item ids in data tracker
-# create function to automatically add user to finance system - see user_accounts.py
+# create function to automatically add user to finance system, or at least get their finance account id into the data tracker- see user_accounts.py
 
 DATA_TRACKER_CONFIG = {
     "transactions": {
@@ -31,12 +37,15 @@ DATA_TRACKER_CONFIG = {
 
 # move elsewhere
 inv_request_obj = "object_25"
+inv_txn_finance_obj = "object_23"
+inv_txn_data_tracker_obj = "object_36"
 work_order_request_id_field = "field_3444"
 work_orders_obj = "object_31"
 finance_inventory_request_id_on_transaction = "field_3445"
 finance_txn_record_id_field = "field_3443"
 data_tracker_txn_transmission_status = "field_3448"
 work_order_finance_account_id = "field_3449"
+work_order_transaction_status_field = "field_1416"
 
 def post_record(record, auth, obj_key, method):
 
@@ -70,24 +79,18 @@ def create_inventory_request(work_order, src_app_id, dest_app_id):
     Create new inventory request and update the work order in Data Tracker 
     with the request ID
     """
-    request = InventoryRequest(work_order)
-
-    payload = request.payload
+    request = RecordMap(work_order, type_="inventory_request")
 
     # todo: implement user-create method
 
-    pdb.set_trace()
     res = post_record(
-        payload, KNACK_CREDENTIALS[dest_app_id], inv_request_obj, "create"
+        request.payload, KNACK_CREDENTIALS[dest_app_id], inv_request_obj, "create"
     )
 
     # update data tracker work order with inventory request id
     req_id = res.get("id")
 
-    payload = {
-        "id": work_order.get("id"),
-        work_order_request_id_field : req_id,
-    }
+    payload = {"id": work_order.get("id"), work_order_request_id_field: req_id}
 
     res = post_record(payload, KNACK_CREDENTIALS[src_app_id], work_orders_obj, "update")
 
@@ -95,6 +98,11 @@ def create_inventory_request(work_order, src_app_id, dest_app_id):
 
 
 def filter_unsent_transactions_on_work_order(request_id):
+    """
+    Filter to query transactions connected to the inpurt `request_id`.
+    Note that the view is pre-filtered in Data Tracker to include only
+    those with `transaction_status` == `READY_TO_SEND`
+    """
     return [
         {
             "field": finance_inventory_request_id_on_transaction,
@@ -102,6 +110,37 @@ def filter_unsent_transactions_on_work_order(request_id):
             "value": request_id,
         }
     ]
+
+
+def create_txn(txn_data_tracker, src_app_id, dest_app_id):
+    """
+    Create or update a transaction record in the finance system from the Data Tracker.
+    """
+    txn = RecordMap(txn_data_tracker, type_="inventory_transaction")
+
+    if not txn.payload.get("id"):
+        method = "create"
+    else:
+        method = "update"
+
+    res = post_record(
+        txn.payload, KNACK_CREDENTIALS[dest_app_id], inv_txn_finance_obj, method
+    )
+
+    # update data tracker transaction with transaction ID in finance
+    txn_id = res.get("id")
+
+    payload = {
+        "id": txn_data_tracker.get("id"),
+        finance_txn_record_id_field: txn_id,
+        data_tracker_txn_transmission_status: "SENT",
+    }
+
+    res = post_record(
+        payload, KNACK_CREDENTIALS[src_app_id], inv_txn_data_tracker_obj, "update"
+    )
+
+    return res
 
 
 def main(src_app_id, dest_app_id, work_order):
@@ -125,11 +164,13 @@ def main(src_app_id, dest_app_id, work_order):
         DATA_TRACKER_CONFIG["transactions"], auth_data_tracker, filters=filters
     )
 
-    pdb.set_trace()
+    for txn in txns.data_raw:
+        res = create_txn(txn, src_app_id, dest_app_id)
 
-   
+
 if __name__ == "__main__":
     import logging
+
     logger = get_logger("_inventory_requests")
     logger.setLevel(logging.DEBUG)
 
@@ -325,7 +366,7 @@ if __name__ == "__main__":
         "field_3067_raw": 0,
         "field_3068": 0,
         "field_3068_raw": 0,
-        "field_3444": "",
-        "field_3449" : "5b422cb82d916c3327423d41",
+        "field_3444": "5df63fb5668f810015c601ea",
+        "field_3449": "5b422cb82d916c3327423d41",
     }
     main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", work_order)

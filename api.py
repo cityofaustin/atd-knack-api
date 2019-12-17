@@ -42,8 +42,22 @@ async def index(request):
 @app.route("/inventory_request", methods=["POST"])
 async def inventory_request(request):
     """
-    Listen for an inventory request from a source (`src`) application and
-    generate a corresponding request in the destination (`dest`) app.
+    Listens for a inventory request from a source (`src`) application (Data Tracker prod 
+    or test) and generates a corresponding request in the destination (`dest`) app
+    (Finance System prod or test).
+
+    The request payload is a work order record dict from the Data Tracker,
+    which is handled like so:
+    
+    1. A new inventory request is created in the finance system, if one does not already
+    exist for this work order.
+    
+    2. The _inventory_requests script fetches any `READY_TO_SEND` item "transactions"
+    connected to this request.
+
+    3. Inventory item "transactions" are added to or updated on the connected request.
+
+    4. The item transactions are updated in the Data Tracker with a status of "Submitted."
     """
     src = request.args.get("src")
     dest = request.args.get("dest")
