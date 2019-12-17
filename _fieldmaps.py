@@ -65,3 +65,20 @@ work_order_transactions_to_finance_transactions = [
         "transform_dest" : "single_connection"
     }
 ]
+
+finance_txn_to_work_order_txn = [
+    {
+        "src" : None, 
+        "dest" : "field_2476", # ISSUED
+        "default" : True
+    },
+    {
+        "src" : "field_792", # ISSUED_TO_DATA_TRACKER_ACCOUNT_ID
+        "dest" : "field_854", # ISSUED_TO_PERSON
+        "transform_dest" : "single_connection"
+    },
+    {
+        "src" : "field_772", # WORK_ORDER_TRANSACTION_ID
+        "dest" : "id", # data tracker transaction record id
+    },  
+]

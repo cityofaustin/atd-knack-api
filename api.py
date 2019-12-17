@@ -81,6 +81,34 @@ async def inventory_request(request):
     return response.json(res)
 
 
+@app.route("/issue_item", methods=["POST"])
+async def issue_item(request):
+    """
+    Receive an inventory request from the Finance system and update connected inventory
+    transactions (`txn`) records in the Data Tracker which have been issued.
+    """
+    #todo - this route name is meh. `intventory_update`?
+
+    src = request.args.get("src")
+    dest = request.args.get("dest")
+    inv_request = request.json
+
+    if not src or not dest:
+        _403("`src` and `dest` are required.")
+
+    elif not inv_request:
+        _403("`inv_request` json is required.")
+    
+    try:
+        res = _inventory_txn.main(src, dest, inv_request)
+
+    except Exception as e:
+        # todo: debug only. this is not safe!
+        # return a 5xx error instead.
+        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
+
+    return response.json(res)
+
 if __name__ == "__main__":
     # todo: remove debug logging
     logger = get_logger("_inventory_requests")

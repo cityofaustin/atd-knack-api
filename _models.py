@@ -17,8 +17,11 @@ class RecordMap(object):
         elif type_ == "inventory_transaction":
             self.fieldmap = _fieldmaps.work_order_transactions_to_finance_transactions
         
+        elif type_ == "issue_item":
+            self.fieldmap = _fieldmaps.finance_txn_to_work_order_txn
+        
         else:
-            raise Exception("Unspported record type. Choose `inventory_request` or `inventory_transaction`.") 
+            raise Exception("Unspported record type. Choose `inventory_request`, `inventory_transaction`, or `issue_item`.") 
 
         self.payload = self._build_payload()
 

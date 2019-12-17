@@ -12,11 +12,13 @@ from _models import RecordMap
 from secrets import *
 
 # todo
+# fix inventory request status to be driven by transactions...etc
 # condtionally show "request all" button? and move to right of add items form?
 # if we're going to have 1 request per work order, we need to track "issued to" at the transaction level
 # and we need to look at/refactor the approval process and post-issue workflow
 # integrate task orders??? (yes :( )
 # create secrets template
+# move shared function to a _utils lib
 # test against latest knackpy
 # reorg / fix imports
 # cance functionality for "requested" transactions
@@ -25,7 +27,9 @@ from secrets import *
 # what is the purpose of the Approval Needed field?
 # set request approval automatically
 # get finance inventory item ids in data tracker
+# ugh synchronize knack account ids between finance and data tracker
 # create function to automatically add user to finance system, or at least get their finance account id into the data tracker- see user_accounts.py
+# what to do when work order location name is blank?
 
 DATA_TRACKER_CONFIG = {
     "transactions": {
@@ -36,7 +40,7 @@ DATA_TRACKER_CONFIG = {
     }
 }
 
-# move elsewhere
+# todo: move elsewhere
 inv_request_obj = "object_25"
 inv_txn_finance_obj = "object_23"
 inv_txn_data_tracker_obj = "object_36"
