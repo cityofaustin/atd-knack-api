@@ -7,7 +7,7 @@ import pdb
 
 import knackpy
 
-from _logging import get_logger
+import logging
 from _models import RecordMap
 from secrets import *
 
@@ -16,12 +16,13 @@ from secrets import *
 # if we're going to have 1 request per work order, we need to track "issued to" at the transaction level
 # and we need to look at/refactor the approval process and post-issue workflow
 # integrate task orders??? (yes :( )
+# create secrets template
+# test against latest knackpy
 # reorg / fix imports
-# cance/edit functionality for "requested" transactions
-# what is the difference between transaction types "REQUEST" and "WORK ORDER"
+# cance functionality for "requested" transactions
+# what is the difference between transaction types "REQUEST" and "WORK ORDER" in finance system?
 # what is the purpose of the UNSUBMITTED field?
 # what is the purpose of the Approval Needed field?
-# implment inventory request approval in data tracker and set request status based on it. but have to make sure only unsent transactions are approved/modified
 # set request approval automatically
 # get finance inventory item ids in data tracker
 # create function to automatically add user to finance system, or at least get their finance account id into the data tracker- see user_accounts.py
@@ -45,7 +46,7 @@ finance_inventory_request_id_on_transaction = "field_3445"
 finance_txn_record_id_field = "field_3443"
 data_tracker_txn_transmission_status = "field_3448"
 work_order_finance_account_id = "field_3449"
-work_order_transaction_status_field = "field_1416"
+data_tracker_txn_submitted_to_finance = "field_3453" # SUBMITTED_TO_FINANCE_SYSTEM
 
 def post_record(record, auth, obj_key, method):
 
@@ -134,6 +135,7 @@ def create_txn(txn_data_tracker, src_app_id, dest_app_id):
         "id": txn_data_tracker.get("id"),
         finance_txn_record_id_field: txn_id,
         data_tracker_txn_transmission_status: "SENT",
+        data_tracker_txn_submitted_to_finance: True
     }
 
     res = post_record(
@@ -152,13 +154,13 @@ def main(src_app_id, dest_app_id, work_order):
     request_id = work_order.get(work_order_request_id_field)
 
     if not request_id:
-        logger.debug("Creating new inventory request")
+        logging.debug("Creating new inventory request")
         request_id = create_inventory_request(work_order, src_app_id, dest_app_id)
 
     filters = filter_unsent_transactions_on_work_order(request_id)
 
     # get inventory requests from Data Tracker
-    logger.debug("Getting unsent transactions.")
+    logging.debug("Getting unsent transactions.")
 
     txns = knackpy_wrapper(
         DATA_TRACKER_CONFIG["transactions"], auth_data_tracker, filters=filters
@@ -170,6 +172,7 @@ def main(src_app_id, dest_app_id, work_order):
 
 if __name__ == "__main__":
     import logging
+    from _logging import get_logger
 
     logger = get_logger("_inventory_requests")
     logger.setLevel(logging.DEBUG)

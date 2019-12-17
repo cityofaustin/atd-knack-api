@@ -24,6 +24,7 @@ from sanic import exceptions
 from sanic_cors import CORS, cross_origin
 
 import _inventory_request
+from _logging import get_logger
 
 app = Sanic()
 CORS(app)
@@ -81,7 +82,7 @@ async def inventory_request(request):
 
 
 if __name__ == "__main__":
-    # todo: remove debug
-    # todo: setup proper logging
-    logging.basicConfig(filename="error.log", level=logging.DEBUG)
+    # todo: remove debug logging
+    logger = get_logger("_inventory_requests")
+    logger.setLevel(logging.DEBUG)
     app.run(debug=True, host="0.0.0.0", port=8000)
