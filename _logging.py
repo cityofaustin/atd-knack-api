@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 
 def get_logger(name):
     # init logger
-    logger = logging.getLogger("name")
+    logger = logging.getLogger(name)
 
     # log rotate based on filesize
     file_handler = RotatingFileHandler(f"log/{name}.log", maxBytes=2000000)
