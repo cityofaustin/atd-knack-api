@@ -11,7 +11,37 @@ import logging
 from _models import RecordMap
 from secrets import *
 
+"""
+handle request
+    - action
+    - new, update
+
+
+create, update
+
+handle_items
+    - action
+    - create, modify, issue, cancel, return
+
+
+source name, dest name - how to handle test envs?
+what about authentication? whitelist?
+global accounts? name registry? auth with api on start?
+
+fieldmap > use app name as keys
+"""
+
 # todo
+# merge create_txn and issue_txt to "handle_txn"? need to include an "action" request arg, or deduce it?
+#     ^^^also need to handle bi-dectionality
+# removed rejected status. need ability for suprervisor to reject/cancel
+# build app id into api request (currently hardcoded in custom js)
+# deleted submit page. this happens with approvals
+# need status / entry flow for non-aims
+# handle errors by displaying a banner in the knack ui
+# you stopped in the middle of status rules
+# set FDUs or handle in knack somehow ugh
+# endpoint: sync inventory items
 # fix inventory request status to be driven by transactions...etc
 # condtionally show "request all" button? and move to right of add items form?
 # if we're going to have 1 request per work order, we need to track "issued to" at the transaction level
@@ -21,11 +51,8 @@ from secrets import *
 # move shared function to a _utils lib
 # test against latest knackpy
 # reorg / fix imports
-# cance functionality for "requested" transactions
+# cancel functionality for "requested" transactions
 # what is the difference between transaction types "REQUEST" and "WORK ORDER" in finance system?
-# what is the purpose of the UNSUBMITTED field?
-# what is the purpose of the Approval Needed field?
-# set request approval automatically
 # get finance inventory item ids in data tracker
 # ugh synchronize knack account ids between finance and data tracker
 # create function to automatically add user to finance system, or at least get their finance account id into the data tracker- see user_accounts.py
@@ -117,7 +144,7 @@ def filter_unsent_transactions_on_work_order(request_id):
     ]
 
 
-def create_txn(txn_data_tracker, src_app_id, dest_app_id):
+def handle_txn(txn_data_tracker, src_app_id, dest_app_id):
     """
     Create or update a transaction record in the finance system from the Data Tracker.
     """
@@ -171,7 +198,9 @@ def main(src_app_id, dest_app_id, work_order):
     )
 
     for txn in txns.data_raw:
-        res = create_txn(txn, src_app_id, dest_app_id)
+        res = handle_txn(txn, src_app_id, dest_app_id)
+
+    #TODO: return a response ;)
 
 
 if __name__ == "__main__":
