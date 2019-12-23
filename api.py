@@ -24,6 +24,9 @@ from sanic import exceptions
 from sanic_cors import CORS, cross_origin
 
 import _inventory_request
+import _inventory_txn
+import _create_account
+
 from _logging import get_logger
 
 app = Sanic()
@@ -81,14 +84,12 @@ async def inventory_request(request):
     return response.json(res)
 
 
-@app.route("/issue_item", methods=["POST"])
-async def issue_item(request):
+@app.route("/issue_items", methods=["POST"])
+async def issue_items(request):
     """
     Receive an inventory request from the Finance system and update connected inventory
     transactions (`txn`) records in the Data Tracker which have been issued.
     """
-    #todo - this route name is meh. `intventory_update`?
-
     src = request.args.get("src")
     dest = request.args.get("dest")
     inv_request = request.json
@@ -109,8 +110,36 @@ async def issue_item(request):
 
     return response.json(res)
 
+
+@app.route("/create_account", methods=["POST"])
+async def create_account(request):
+    """
+    Create an account in the destination app which mirrors an account
+    in the source app.
+    """
+    src = request.args.get("src")
+    dest = request.args.get("dest")
+    data = request.json
+    
+    if not src or not dest:
+        _403("`src` and `dest` are required.")
+
+    elif not data:
+        _403("`data` json is required.")
+
+    try:
+        res = _create_account.main(src, dest, data)
+
+    except Exception as e:
+        # todo: debug only. this is not safe!
+        # return a 5xx error instead.
+        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
+
+    return response.json(res)
+
+
 if __name__ == "__main__":
     # todo: remove debug logging
-    logger = get_logger("_inventory_requests")
+    logger = get_logger("api")
     logger.setLevel(logging.DEBUG)
     app.run(debug=True, host="0.0.0.0", port=8000)
