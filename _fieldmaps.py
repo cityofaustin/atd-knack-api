@@ -19,16 +19,68 @@ Each fieldmap contains an array of field dictionaries, with the following struct
 
 """
 
+inventory_request = [
+    {
+        "comment" : "The work location name.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_576",
+            },
+            "data_tracker_prod" : {
+                    "id" : "field_904",
+            }
+        }
+
+    },
+    {
+        "comment" : "The work order id.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_766",
+            },
+            "data_tracker_prod" : {
+                "id" : "field_1209",
+            }
+        }
+
+    },
+    {
+        "comment" : "The Knack record ID of the work order in Data Tracker.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_767",
+            },
+            "data_tracker_prod" : {
+                "id" : "id",
+            }
+        }
+
+    },
+    {
+        "comment" : "The data tracker account ID which created/modified the work order",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_571",
+                "transform" : "single_connection"
+            },
+            "data_tracker_prod" : {
+                "id" : "field_3449",
+            }
+        }
+
+    }
+]
+
 
 inventory_txn = [
     {
         "comment" : "Boolean which indicates if the item has been issued.",
         "apps" : {
             "finance_purchasing_prod" : {
-            "id" : "field_645",
+                "id" : "field_645",
             },
-                "data_tracker_prod" : {
-                    "id" : "field_2476",
+            "data_tracker_prod" : {
+                "id" : "field_2476",
             }
         }
 
@@ -36,7 +88,7 @@ inventory_txn = [
     {
         "comment" : "Account ID of the data tracker user to which the item has been issued.",
         "apps" : {
-                "finance_purchasing_prod" : {
+            "finance_purchasing_prod" : {
                 "id" : "field_792",
             },
             "data_tracker_prod" : {
