@@ -1,84 +1,118 @@
-work_order_to_inventory_request = [
-    {
-        "src" : "field_904", # LOCATION_NAME
-        "dest" : "field_576" # WORK_LOCATION
-    },
-    {
-        "src" : "field_1209", # ATD_WORK_ORDER_ID
-        "dest" : "field_766", # ATD_WORK_ORDER_ID
-    },
-    {
-        "src" : "id", # DATA_TRACKER_RECORD_ID
-        "dest" : "field_767", # DATA_TRACKER_RECORD_ID
-    },
-    {
-        "src" : "field_3449", # MODIFIED BY
-        "dest" : "field_571" , # CREATED BY
-        "transform_dest" : "single_connection"
-    },
-    {
-        "src" : None,
-        "dest" : "field_649", # approval needed
-        "default" : True
-    },
-    {
-        "src" : None,
-        "dest" : "field_653", # waiting for approval
-        "default" : 0
-    },
-    {
-        "src" : None,
-        "dest" : "field_649", # submitted
-        "default" : 1
-    },
-]
+"""
+Field mappings for translating records across Knack applications.
+
+Each fieldmap contains an array of field dictionaries, with the following structure:
+
+    - comment (str): an optional comment documenting the field's purpose.
+    
+    - apps (dict): a dicionary of knack application names, as defined in `secrets.py`.
+        These follow a standard naming convention, e.g. data_tracker_prod;
+        finance_purhasing_prod. We have elected to use app names instead of app_ids,
+        because app_ids may change. app_ids are  managed in `secrets.py`.
+
+        Each application entry is a dict which contains field mapping values.
+
+        - id (str) : the field id
+
+        - transform (str): a transformation function, which is applied on *inbound*
+            data. transformation functions are defined in `_transforms.py`
+
+"""
 
 
-work_order_transactions_to_finance_transactions = [
-    # finance account object: object_3
-    # work order account object: object_9
+inventory_txn = [
     {
-        "src" : "field_524", # quantity
-        "dest" : "field_512" # quantity
-    },
-    {
-        "src" : "field_3443", # FINANCE_SYSTEM_TXN_RECORD_ID
-        "dest" : "id" # FINANCE_SYSTEM_TXN_RECORD_ID
-    },
-    {
-        "src" : "id", # WORK_ORDER_TRANSACTION_ID
-        "dest" : "field_772" # WORK_ORDER_TRANSACTION_ID
-    },
-    {
-        "src" : "field_3445", # FINANCE_INVENTORY_REQEUST_ID
-        "dest" : "field_632", # inventory_request
-        "transform_dest" : "single_connection"
-    },
-    {
-        "src" : None,
-        "dest" : "field_509", # REQUEST_TYPE
-        "default" : "WORK ORDER"
-    },
-    {
-        "src" : "field_3451", # ITEM_ID_FINANCE_SYSTEM
-        "dest" : "field_547", # inventory_item
-        "transform_dest" : "single_connection"
-    }
-]
+        "comment" : "Boolean which indicates if the item has been issued.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+            "id" : "field_645",
+            },
+                "data_tracker_prod" : {
+                    "id" : "field_2476",
+            }
+        }
 
-finance_txn_to_work_order_txn = [
-    {
-        "src" : None, 
-        "dest" : "field_2476", # ISSUED
-        "default" : True
     },
     {
-        "src" : "field_792", # ISSUED_TO_DATA_TRACKER_ACCOUNT_ID
-        "dest" : "field_854", # ISSUED_TO_PERSON
-        "transform_dest" : "single_connection"
+        "comment" : "Account ID of the data tracker user to which the item has been issued.",
+        "apps" : {
+                "finance_purchasing_prod" : {
+                "id" : "field_792",
+            },
+            "data_tracker_prod" : {
+                "id" : "field_854",
+                "transform" : "text_to_connection"
+            }
+        }
     },
     {
-        "src" : "field_772", # WORK_ORDER_TRANSACTION_ID
-        "dest" : "id", # data tracker transaction record id
-    },  
+        "comment" : "Knack record ID of the transaction in the Data Tracker",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_772",
+            },
+            "data_tracker_prod" : {
+                "id" : "id",
+            }
+        }
+    },
+   {
+        "comment" : "item quantity",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_512",
+            },
+            "data_tracker_prod" : {
+                "id" : "field_524",
+            }
+        }
+    },
+   {
+        "comment" : "The Knack record ID of the transaction in the Finance system.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "id",
+            },
+            "data_tracker_prod" : {
+                "id" : "field_3443",
+            }
+        }
+    },
+
+   {
+        "comment" : "Record ID of the inventory request in the finance system.",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_632",
+                "transform" : "single_connection"
+            },
+            "data_tracker_prod" : {
+                "id" : "field_3445",
+            }
+        }
+    },
+   {
+        "comment" : "The transaction type (work order, return, etc)",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_509",
+            },
+            "data_tracker_prod" : {
+                "id" : "field_769",
+            }
+        }
+    },
+   {
+        "comment" : "The Knack record ID of the inventory item in the finacne system",
+        "apps" : {
+            "finance_purchasing_prod" : {
+                "id" : "field_547",
+                "transform" : "single_connection"
+            },
+            "data_tracker_prod" : {
+                "id" : "field_3451",
+            }
+        }
+    },
+
 ]
