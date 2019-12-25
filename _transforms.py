@@ -1,5 +1,8 @@
-def single_connection(val):
+def text_to_connection(val):
     """
-    Return a Knack connection list from a value
+    Return a Knack connection list from a str
     """
-    return [val]
+    if val:
+        return [val]
+    else:
+        return []

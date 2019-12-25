@@ -1,6 +1,8 @@
 """
 Check Data Tracker for new inventory requests and generate a corresponding
 request in the Finance system.
+
+TODO: deprecate this and use _inventory_request for both directions
 """
 from pprint import pprint as print
 import pdb
@@ -81,14 +83,21 @@ def filter_unsent_transactions_on_inventory_request(request_id):
     ]
 
 
-def issue_item(txn, src_app_id, dest_app_id):
-    item = RecordMap(txn, type_="issue_item")
+def issue_item(txn, src_app_id, dest_app_id, action):
+    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
+    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
+
+    item = RecordMap(src_app_name, dest_app_name, txn, action=action, type_="inventory_txn")
+
     return post_record(
         item.payload, KNACK_CREDENTIALS[dest_app_id], data_tracker_inv_txn_obj, "update"
     )
 
 
-def main(src_app_id, dest_app_id, inv_request):
+def main(src_app_id, dest_app_id, inv_request, action=None):
+
+    if not action:
+        raise Excpetion("Action is required. Choose from [`issue`, `create`]")
 
     auth_data_tracker = KNACK_CREDENTIALS[dest_app_id]
 
@@ -103,7 +112,7 @@ def main(src_app_id, dest_app_id, inv_request):
     )
 
     for txn in txns.data_raw:
-        res = issue_item(txn, src_app_id, dest_app_id)
+        res = issue_item(txn, src_app_id, dest_app_id, action)
 
         # update finance system transaction as submitted
         payload = {"id": txn.get("id"), finance_submitted_to_data_tracker_field: True}
@@ -124,11 +133,11 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
 
     inv_request = {
-        "id": "5df8374417698d001aaa65bb",
-        "field_570": 41,
-        "field_570_raw": 41,
-        "field_767": "5df10bf86d76b100157d1003",
-        "field_767_raw": "5df10bf86d76b100157d1003",
+        "id": "5e02244cc92c6200176d111d",
+        "field_570": 43,
+        "field_570_raw": 43,
+        "field_767": "abc234",
+        "field_767_raw": "abc234",
     }
 
     main("5b422c9b13774837e54ed814", "5815f29f7f7252cc2ca91c4f", inv_request)

@@ -7,45 +7,50 @@ class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-    def __init__(self, data, type_= None):
+    def __init__(self, src, dest, data, direction=None, type_= None):
 
         self.data = data
+        self.dest = dest
+        self.dir = direction
+        self.src = src
+        self.type = type_
 
-        if type_ == "inventory_request":
-            self.fieldmap = _fieldmaps.work_order_to_inventory_request
+        if self.type  == "inventory_request":
+            self.fieldmap = _fieldmaps.inventory_request
         
-        elif type_ == "inventory_transaction":
-            self.fieldmap = _fieldmaps.work_order_transactions_to_finance_transactions
-        
-        elif type_ == "issue_item":
-            self.fieldmap = _fieldmaps.finance_txn_to_work_order_txn
+        elif self.type  == "inventory_txn":
+            self.fieldmap = _fieldmaps.inventory_txn
         
         else:
-            raise Exception("Unspported record type. Choose `inventory_request`, `inventory_transaction`, or `issue_item`.") 
+            raise Exception("Unspported record type. Choose `inventory_request`, `inventory_txn`, or `issue_item`.") 
 
         self.payload = self._build_payload()
 
 
     def _build_payload(self):
         """
-        Map input data to output fields. 
+        Map input data to output fields. Fields not definied in `_fieldmaps` are dropped.
         """
         payload = {}
 
         for field in self.fieldmap:
-            src_field = field.get("src")
             
-            if src_field:
-                val = self.data.get(src_field)
+            if self.dir not in field.get("directions"):
+                # ignore fields that do not support the direction of data flow
+                continue
+
+            src_field_id = field.get("apps").get(self.src).get("id")
+            
+            dest_field_id = field.get("apps").get(self.dest).get("id")
+
+            transform = field.get("apps").get(self.dest).get("transform")
+
+            val = self.data.get(src_field_id)
                     
-                if field.get("transform_dest"):
-                    val = self._transform(val, field["transform_dest"])
+            if transform:
+                val = self._transform(val, transform)
 
-            else:
-                # no source field, use default value
-                val = field.get("default")
-
-            payload[field["dest"]] = val
+            payload[dest_field_id] = val
 
         return payload
 

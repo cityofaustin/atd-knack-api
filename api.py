@@ -23,6 +23,7 @@ from sanic import response
 from sanic import exceptions
 from sanic_cors import CORS, cross_origin
 
+from secrets import KNACK_CREDENTIALS
 import _inventory_request
 import _inventory_txn
 import _create_account
@@ -37,6 +38,16 @@ def _403(error):
     raise exceptions.Forbidden(error)
 
 
+def _validate_app_ids(app_ids):
+    """
+    Ensure that the requested application IDs exist in the credential store.
+    """
+    for app_id in app_ids:
+        app_data = KNACK_CREDENTIALS[app_id]
+
+    return True
+
+
 @app.route("/")
 async def index(request):
     now = datetime.now().isoformat()
@@ -46,62 +57,76 @@ async def index(request):
 @app.route("/inventory_request", methods=["POST"])
 async def inventory_request(request):
     """
-    Listens for a inventory request from a source (`src`) application (Data Tracker prod 
-    or test) and generates a corresponding request in the destination (`dest`) app
-    (Finance System prod or test).
+    Facilitates inventory transactions between the AMD Data Tracker and the Finance and
+    Purchasing system.
 
-    The request payload is a work order record dict from the Data Tracker,
-    which is handled like so:
+    Listens for an inventory request from a `src` app, either in the form of a work order
+    (in the case of the Data Tracker) or an inventory request (in the case of the Finance
+    system) and generates a corresponding request in the `dest` app.
+    
+    --- 
+
+    When the request payload is a work order record dict from the Data Tracker,
+    it is handled like so:
     
     1. A new inventory request is created in the finance system, if one does not already
     exist for this work order.
     
     2. The _inventory_requests script fetches any `READY_TO_SEND` item "transactions"
-    connected to this request.
+    connected to this request. These transactions are fetched from a pre-filtered table
+    view in the Data Tracker.
 
-    3. Inventory item "transactions" are added to or updated on the connected request.
+    3. Inventory item "transactions" are created or updated on the connected request.
 
-    4. The item transactions are updated in the Data Tracker with a status of "Submitted."
-    """
-    src = request.args.get("src")
-    dest = request.args.get("dest")
-    work_order = request.json
+    4. The work order in the Data Tracker is updated with the Knack record ID of the
+    inventory request in the Finance system.
 
-    if not src or not dest:
-        _403("`src` and `dest` are required.")
-
-    elif not work_order:
-        _403("`work_order` json is required.")
-
-    try:
-        res = _inventory_request.main(src, dest, work_order)
-
-    except Exception as e:
-        # todo: debug only. this is not safe!
-        # return a 5xx error instead.
-        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
-
-    return response.json(res)
-
-
-@app.route("/issue_items", methods=["POST"])
-async def issue_items(request):
-    """
-    Receive an inventory request from the Finance system and update connected inventory
-    transactions (`txn`) records in the Data Tracker which have been issued.
-    """
-    src = request.args.get("src")
-    dest = request.args.get("dest")
-    inv_request = request.json
-
-    if not src or not dest:
-        _403("`src` and `dest` are required.")
-
-    elif not inv_request:
-        _403("`inv_request` json is required.")
+    5. The inventory transaction records in the Data Tracker are updated with the Knack
+    record IDs of the corresponding transactions in the Finance system, and their
+    `transmission_status` and `transaction_status` is to confirm the request has been
+    sent to the Finance system.
     
+    ---
+
+    Record flows from the Finance system to the Data Tracker only occur when transactions
+    are updated in the Finance system, i.e., a transaction is issued or cancelled. All
+    inventory requests sent to the API from the Finance system will already have a 
+    corresponding work order in the Data Tracker, as well as connected transactions. The
+    work order in the Data Tracker is never updated by the Finance System, only
+    connected transactions are processed.
+
+    When the request payload is an inventory request from the Finance system:
+    
+    1. The API receives an inventory request, extracts the request ID, and fetches any
+    `READY_TO_SEND` item "transactions" connected to the request. These transactions are
+    fetched from a pre-filtered table view in the Finacne System.
+
+    2. Corresponding inventory transactions in the Data Tracker are updated accordingly.
+
+    3. The `transmission_status` of theaffected inventory transactions in the Finance sytem
+    are updated to confirm the request has been successfully sent to the data tracker.
+
+    """
+    src = request.args.get("src")
+    dest = request.args.get("dest")
+
+    data = request.json
+
+    if not src or not dest:
+        _403("`src` and `dest` are required.")
+
+    elif not data:
+        _403("`data` json is required.")
+
     try:
-        res = _inventory_txn.main(src, dest, inv_request)
+        # todo: test
+        _validate_app_ids([src, dest])
+
+    except:
+        _403("Unknown `src` or `dest` application ID(s) provided.")
+
+    try:
+        res = _inventory_request.main(src, dest, data)
 
     except Exception as e:
         # todo: debug only. this is not safe!
@@ -120,7 +145,7 @@ async def create_account(request):
     src = request.args.get("src")
     dest = request.args.get("dest")
     data = request.json
-    
+
     if not src or not dest:
         _403("`src` and `dest` are required.")
 

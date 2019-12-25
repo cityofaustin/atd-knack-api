@@ -11,52 +11,32 @@ import logging
 from _models import RecordMap
 from secrets import *
 
-"""
-handle request
-    - action
-    - new, update
-
-
-create, update
-
-handle_items
-    - action
-    - create, modify, issue, cancel, return
-
-
-source name, dest name - how to handle test envs?
-what about authentication? whitelist?
-global accounts? name registry? auth with api on start?
-
-fieldmap > use app name as keys
-"""
-
 # todo
-# merge create_txn and issue_txt to "handle_txn"? need to include an "action" request arg, or deduce it?
-#     ^^^also need to handle bi-dectionality
-# removed rejected status. need ability for suprervisor to reject/cancel
+# data_tracker > finance is ready to test. need to update fieldmap to set submitted/approved values on transactions/requests
+# still need to refactor finance > data tracker flow to use _inventory_request
+# clean/reduce up methods to make them smaller reusable
+# started building fieldmap for create_account. how to set created/modded by? need an api account
+# tests!
+# just use one endpoint for inventory. handles a work order or an inventory request based on src/dest
+# ^^ in which case actions need to be set at the app level in the fieldmap. and should be validated at the api level?
+# ^^ the fieldmaps or some config could drive the api actions which are validated?
+# confirm that the finance api view filters for transactions which are ready to send
+# should handle the post-transimission updates to the src app more gracefully, i.e. with fieldmaps
 # build app id into api request (currently hardcoded in custom js)
-# deleted submit page. this happens with approvals
-# need status / entry flow for non-aims
+# deleted submit page in data tracker tech work order. this happens with approvals
 # handle errors by displaying a banner in the knack ui
-# you stopped in the middle of status rules
-# set FDUs or handle in knack somehow ugh
-# endpoint: sync inventory items
-# fix inventory request status to be driven by transactions...etc
+# endpoint: sync inventory items, task orders
 # condtionally show "request all" button? and move to right of add items form?
-# if we're going to have 1 request per work order, we need to track "issued to" at the transaction level
-# and we need to look at/refactor the approval process and post-issue workflow
-# integrate task orders??? (yes :( )
+# task orders
 # create secrets template
 # move shared function to a _utils lib
 # test against latest knackpy
 # reorg / fix imports
 # cancel functionality for "requested" transactions
-# what is the difference between transaction types "REQUEST" and "WORK ORDER" in finance system?
-# get finance inventory item ids in data tracker
+# get finance inventory item ids in data tracker, keep in sync
 # ugh synchronize knack account ids between finance and data tracker
-# create function to automatically add user to finance system, or at least get their finance account id into the data tracker- see user_accounts.py
 # what to do when work order location name is blank?
+# authentication - you did create an api form in the data tracker but have not implemented api
 
 DATA_TRACKER_CONFIG = {
     "transactions": {
@@ -77,7 +57,8 @@ finance_inventory_request_id_on_transaction = "field_3445"
 finance_txn_record_id_field = "field_3443"
 data_tracker_txn_transmission_status = "field_3448"
 work_order_finance_account_id = "field_3449"
-data_tracker_txn_submitted_to_finance = "field_3453" # SUBMITTED_TO_FINANCE_SYSTEM
+data_tracker_txn_submitted_to_finance = "field_3453"  # SUBMITTED_TO_FINANCE_SYSTEM
+
 
 def post_record(record, auth, obj_key, method):
 
@@ -99,7 +80,6 @@ def knackpy_wrapper(cfg_dataset, auth, filters=None):
         view=cfg_dataset["view"],
         ref_obj=cfg_dataset["ref_obj"],
         app_id=auth["app_id"],
-        # api_key=auth["api_key"],
         filters=filters,
         page_limit=1,
         rows_per_page=10,
@@ -108,12 +88,22 @@ def knackpy_wrapper(cfg_dataset, auth, filters=None):
 
 def create_inventory_request(work_order, src_app_id, dest_app_id):
     """
-    Create new inventory request and update the work order in Data Tracker 
-    with the request ID
+    Create new inventory request and update the work order in Data Tracker  with the
+    request ID. The reverse flow, an Inventory Request > Work Order is not supported
+    because our business process forbids this.
     """
-    request = RecordMap(work_order, type_="inventory_request")
+    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
+    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
 
-    # todo: implement user-create method
+    request = RecordMap(
+        src_app_name,
+        dest_app_name,
+        work_order,
+        direction="to_finance_system",
+        type_="inventory_request",
+    )
+
+    pdb.set_trace()
 
     res = post_record(
         request.payload, KNACK_CREDENTIALS[dest_app_id], inv_request_obj, "create"
@@ -144,11 +134,13 @@ def filter_unsent_transactions_on_work_order(request_id):
     ]
 
 
-def handle_txn(txn_data_tracker, src_app_id, dest_app_id):
+def handle_txn(txn_data_tracker, src_app_id, dest_app_id, direction=None):
     """
-    Create or update a transaction record in the finance system from the Data Tracker.
+    Create or update a transaction record.
+
+    TODO: handle bi-directional txns
     """
-    txn = RecordMap(txn_data_tracker, type_="inventory_transaction")
+    txn = RecordMap(txn_data_tracker, type_="inventory_txn", direction=direction)
 
     if not txn.payload.get("id"):
         method = "create"
@@ -166,7 +158,7 @@ def handle_txn(txn_data_tracker, src_app_id, dest_app_id):
         "id": txn_data_tracker.get("id"),
         finance_txn_record_id_field: txn_id,
         data_tracker_txn_transmission_status: "SENT",
-        data_tracker_txn_submitted_to_finance: True
+        data_tracker_txn_submitted_to_finance: True,
     }
 
     res = post_record(
@@ -176,31 +168,56 @@ def handle_txn(txn_data_tracker, src_app_id, dest_app_id):
     return res
 
 
-def main(src_app_id, dest_app_id, work_order):
+def main(src_app_id, dest_app_id, data):
 
-    auth_data_tracker = KNACK_CREDENTIALS[src_app_id]
+    src_app_auth = KNACK_CREDENTIALS[src_app_id]
+    dest_app_auth = KNACK_CREDENTIALS[dest_app_id]
 
-    auth_finance_admin = KNACK_CREDENTIALS[dest_app_id]
+    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
+    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
 
-    request_id = work_order.get(work_order_request_id_field)
+    """
+    TODO
+    - merging to handle inventory request or work order.
+    - handle actions. move actions in fieldmaps to app level
+    """
 
-    if not request_id:
-        logging.debug("Creating new inventory request")
-        request_id = create_inventory_request(work_order, src_app_id, dest_app_id)
+    if "finance" in src_app_name.lower():
+        # handle inventory request from finance system
+        # todo: move/reduce code from _inventory_txn
+        direction = "to_data_tracker"
 
-    filters = filter_unsent_transactions_on_work_order(request_id)
+    elif "data_tracker" in src_app_name.lower():
+        # handle work order from data tracker
+        direction = "to_finance_system"
 
-    # get inventory requests from Data Tracker
-    logging.debug("Getting unsent transactions.")
+        request_id = data.get(work_order_request_id_field)
 
-    txns = knackpy_wrapper(
-        DATA_TRACKER_CONFIG["transactions"], auth_data_tracker, filters=filters
-    )
+        if not request_id:
+            logging.debug("Creating new inventory request")
+            request_id = create_inventory_request(data, src_app_id, dest_app_id)
 
-    for txn in txns.data_raw:
-        res = handle_txn(txn, src_app_id, dest_app_id)
+        pdb.set_trace()
+        filters = filter_unsent_transactions_on_work_order(request_id)
 
-    #TODO: return a response ;)
+        # get inventory requests from Data Tracker
+        logging.debug("Getting unsent transactions.")
+
+        txns = knackpy_wrapper(
+            DATA_TRACKER_CONFIG["transactions"], src_app_auth, filters=filters
+        )
+
+        for txn in txns.data_raw:
+            res = handle_txn(txn, src_app_id, dest_app_id, direction=direction)
+
+    else:
+        """
+        This should never happen because we validate src/dest app IDs when the
+        request is received. The KNACK_CREDENTIALS may be corrupted.
+        """
+        raise Exception("Unknown application ID provided")
+
+    # TODO: return a response ;)
 
 
 if __name__ == "__main__":
@@ -402,7 +419,9 @@ if __name__ == "__main__":
         "field_3067_raw": 0,
         "field_3068": 0,
         "field_3068_raw": 0,
-        "field_3444": "5df63fb5668f810015c601ea",
+        "field_3444": "",
+        # "field_3444": "5df63fb5668f810015c601ea",
         "field_3449": "5b422cb82d916c3327423d41",
     }
+
     main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", work_order)
