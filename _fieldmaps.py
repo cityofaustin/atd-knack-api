@@ -18,10 +18,14 @@ Each fieldmap contains an array of field dictionaries, with the following struct
 
         Each application entry is a dict which contains field mapping values.
 
-        - id (str) : the field id
+        - id (str) : the field id. If `None`, default value is required
 
         - transform (str): a transformation function, which is applied on *inbound*
             data. transformation functions are defined in `_transforms.py`
+
+        - default : used to set the default value. required if no field `id` is present.
+            ie, this value is set on the destination payload when no src data is 
+            provided. it is defined on the `src` application field definition.
 
 """
 inventory_request = [
@@ -60,8 +64,15 @@ inventory_request = [
             "data_tracker_prod": {"id": "field_3449"},
         },
     },
+    {
+        "comment": "Boolean which indicates if the request has been submitted. Always set to true.",
+        "directions": ["to_finance_system"],
+        "apps": {
+            "finance_purchasing_prod": {"id": "field_649", "default" : True },
+            "data_tracker_prod": {"id": None},
+        },
+    },
 ]
-
 
 inventory_txn = [
     {
@@ -132,6 +143,17 @@ inventory_txn = [
                 "transform": "text_to_connection",
             },
             "data_tracker_prod": {"id": "field_3451"},
+        },
+    },
+    {
+        "comment": "If the item request is approved by a supervsisor. Always true. A transaction must be approved in the app before a request is triggered.",
+        "directions": ["to_finance_system"],
+        "apps": {
+            "finance_purchasing_prod": {
+                "id": "field_795",
+                "default" : True,
+            },
+            "data_tracker_prod": {"id": None},
         },
     },
 ]

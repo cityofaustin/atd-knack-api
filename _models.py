@@ -7,12 +7,13 @@ class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-    def __init__(self, src, dest, data, direction=None, type_= None):
+    def __init__(self, src_app_name, dest_app_name, data, direction=None, type_= None):
 
+        
+        self.app_name_dest = dest_app_name
+        self.app_name_src = src_app_name
         self.data = data
-        self.dest = dest
         self.dir = direction
-        self.src = src
         self.type = type_
 
         if self.type  == "inventory_request":
@@ -39,14 +40,19 @@ class RecordMap(object):
                 # ignore fields that do not support the direction of data flow
                 continue
 
-            src_field_id = field.get("apps").get(self.src).get("id")
+            src_field_id = field.get("apps").get(self.app_name_src).get("id")
             
-            dest_field_id = field.get("apps").get(self.dest).get("id")
+            dest_field_id = field.get("apps").get(self.app_name_dest).get("id")
 
-            transform = field.get("apps").get(self.dest).get("transform")
+            transform = field.get("apps").get(self.app_name_dest).get("transform")
 
-            val = self.data.get(src_field_id)
-                    
+            if not src_field_id:
+                # field is not present in src data; use default value.
+                val = field.get("apps").get(self.app_name_dest).get("default")
+            
+            else:
+                val = self.data.get(src_field_id)
+
             if transform:
                 val = self._transform(val, transform)
 

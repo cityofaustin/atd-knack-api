@@ -12,6 +12,8 @@ from _models import RecordMap
 from secrets import *
 
 # todo
+# update data tracker inventory items with finance knack ids
+# very bad things happen when a request fails
 # data_tracker > finance is ready to test. need to update fieldmap to set submitted/approved values on transactions/requests
 # still need to refactor finance > data tracker flow to use _inventory_request
 # clean/reduce up methods to make them smaller reusable
@@ -140,7 +142,10 @@ def handle_txn(txn_data_tracker, src_app_id, dest_app_id, direction=None):
 
     TODO: handle bi-directional txns
     """
-    txn = RecordMap(txn_data_tracker, type_="inventory_txn", direction=direction)
+    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
+    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
+
+    txn = RecordMap(src_app_name, dest_app_name, txn_data_tracker, type_="inventory_txn", direction=direction)
 
     if not txn.payload.get("id"):
         method = "create"
