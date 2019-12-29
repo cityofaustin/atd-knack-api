@@ -109,7 +109,7 @@ inventory_txn = [
     },
     {
         "comment": "The Knack record ID of the transaction in the Finance system.",
-        "directions": ["to_finance_system"],
+        "directions": ["to_finance_system", "to_data_tracker"],
         "apps": {
             "finance_purchasing_prod": {"id": "id"},
             "data_tracker_prod": {"id": "field_3443"},
@@ -156,8 +156,19 @@ inventory_txn = [
             "data_tracker_prod": {"id": None},
         },
     },
+    {
+        "comment": "If the txn record has been sent to the Finance System.",
+        "directions": ["to_data_tracker"],
+        "apps": {
+            "finance_purchasing_prod": {
+                "id": None,
+            },
+            "data_tracker_prod": {"id": "field_3448", "default" : True },
+        },
+    },
 ]
 
+data_tracker_txn_submitted_to_finance = "field_3453"
 
 user_account = [
     {
