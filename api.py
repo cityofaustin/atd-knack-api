@@ -9,10 +9,6 @@ $(document).on('knack-form-submit.view_2662', function(event, view, record) {
         console.log(data);
     });
 });
-
-test:
-http://localhost:8000/inventory_request?src=5815f29f7f7252cc2ca91c4f&dest=5b422c9b13774837e54ed814&work_order=5df10bf86d76b100157d1003
-
 """
 from datetime import datetime
 import logging
