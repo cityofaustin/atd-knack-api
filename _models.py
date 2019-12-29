@@ -22,6 +22,7 @@ class RecordMap(object):
         self.fields = self.fieldmap.get("fields")
         self.objects = self.fieldmap.get("objects")
         self.payload = self._build_payload()
+        self.method = self._set_method()
 
     def _set_direction(self):
         """
@@ -34,7 +35,7 @@ class RecordMap(object):
 
         elif "data_tracker" in self.app_name_src.lower():
             direction = "to_finance_system"
-            
+
         return direction
 
     def _build_payload(self):
@@ -68,6 +69,15 @@ class RecordMap(object):
             payload[dest_field_id] = val
 
         return payload
+
+    def _set_method(self):
+        """
+        Determine if the record will be created or updated in the destination app.
+        """
+        if self.payload.get("id"):
+            return "update"
+        else:
+            return "create"
 
     def _transform(self, val, transform):
         transform_func = getattr(_transforms, transform)
