@@ -3,7 +3,7 @@ from datetime import datetime
 from _fieldmaps import fieldmap
 import _transforms
 
-class RecordMap(object):
+class Record(object):
     """
     Generate an inventory request from a work order.
     """
