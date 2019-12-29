@@ -7,7 +7,7 @@ class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-    def __init__(self, src_app_name, dest_app_name, data, direction=None, type_= None):
+    def __init__(self, src_app_name, dest_app_name, data, direction=None, type_=None):
 
         
         self.app_name_dest = dest_app_name
@@ -21,6 +21,9 @@ class RecordMap(object):
         
         elif self.type  == "inventory_txn":
             self.fieldmap = _fieldmaps.inventory_txn
+
+        elif self.type  == "user_account":
+            self.fieldmap = _fieldmaps.user_account
         
         else:
             raise Exception("Unspported record type. Choose `inventory_request`, `inventory_txn`, or `issue_item`.") 
@@ -41,7 +44,7 @@ class RecordMap(object):
                 continue
 
             src_field_id = field.get("apps").get(self.app_name_src).get("id")
-            
+
             dest_field_id = field.get("apps").get(self.app_name_dest).get("id")
 
             transform = field.get("apps").get(self.app_name_dest).get("transform")
