@@ -89,14 +89,18 @@ async def record(request):
         _403("Unknown record `type` provided.")
 
     try:
-        res = _record.main(src, dest, data, record_type=record_type)
+        status_code, message = _record.main(src, dest, data, record_type=record_type)
 
     except Exception as e:
         # todo: debug only. this is not safe!
         # return a 5xx error instead.
         raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
 
-    return response.json({"todo": "todo"})
+    if status_code == 200:
+        return respons.text(message)
+
+    else:
+        raise ServerError(message, status_code=500)
 
 
 if __name__ == "__main__":

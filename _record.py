@@ -47,9 +47,14 @@ def main(src_app_id, dest_app_id, record, record_type):
 
     dest_obj = record.objects.get(dest_app_name).get("id")
     
-    res = post_record(
-        record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, method
-    )
+    try:
+        res = post_record(
+            record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, method
+        )
+    
+    except HTTPError as e:
+        #todo: test
+        return e.response.status_code, e.response.text
 
     # Update the source record with confirmation of transmission
     # todo: add a method to "flip" direction?
@@ -62,11 +67,16 @@ def main(src_app_id, dest_app_id, record, record_type):
 
     dest_obj = record.objects.get(src_app_name).get("id")
 
-    res = post_record(
-        record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
-    )
+    try:
+        res = post_record(
+            record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
+        )
 
-    return res
+    except HTTPError as e:
+        #todo: test
+        return e.response.status_code, e.response.text
+
+    return 200, "success"
 
 
 if __name__ == "__main__":
