@@ -1,0 +1,6 @@
+knackpy
+requests
+sanic
+sanic-cors
+pytest
+pytest-sanic
