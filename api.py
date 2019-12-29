@@ -131,6 +131,38 @@ async def inventory_request(request):
 
     return response.json(res)
 
+@app.route("/inventory_txn", methods=["POST"])
+async def inventory_txn(request):
+    """
+    Handle a transaction.
+    """
+    src = request.args.get("src")
+    dest = request.args.get("dest")
+    data = request.json
+
+    if not src or not dest:
+        _403("`src` and `dest` are required.")
+
+    elif not data:
+        _403("`data` json is required.")
+
+    try:
+        # todo: test
+        _validate_app_ids([src, dest])
+
+    except:
+        _403("Unknown `src` or `dest` application ID(s) provided.")
+
+    try:
+        res = _inventory_txn2.main(src, dest, data) #todo: create this
+
+    except Exception as e:
+        # todo: debug only. this is not safe!
+        # return a 5xx error instead.
+        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
+
+    return response.json({"todo": "todo"})
+
 
 @app.route("/create_account", methods=["POST"])
 async def create_account(request):
