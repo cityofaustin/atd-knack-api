@@ -7,22 +7,35 @@ class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-    def __init__(self, src_app_name, dest_app_name, data, direction=None, record_type=None):
+    def __init__(self, src_app_name, dest_app_name, data, record_type=None):
 
         self.app_name_dest = dest_app_name
         self.app_name_src = src_app_name
         self.data = data
-        self.dir = direction
         self.record_type = record_type
         self.fieldmap = fieldmap.get(record_type)
 
         if not self.fieldmap:
             raise Exception("Cannot find fieldmap. Unknown record `type_` provided.")
 
+        self.direction = self._set_direction()
         self.fields = self.fieldmap.get("fields")
         self.objects = self.fieldmap.get("objects")
         self.payload = self._build_payload()
 
+    def _set_direction(self):
+        """
+        Determine the fieldmap "direction". This attribute allows the fieldmap to
+        properly filter fields
+         based on the src/dest applications.
+        """
+        if "finance" in self.app_name_src.lower():
+            direction = "to_data_tracker"
+
+        elif "data_tracker" in self.app_name_src.lower():
+            direction = "to_finance_system"
+            
+        return direction
 
     def _build_payload(self):
         """
@@ -32,7 +45,7 @@ class RecordMap(object):
 
         for field in self.fields:
             
-            if self.dir not in field.get("directions"):
+            if self.direction not in field.get("directions"):
                 # ignore fields that do not support the direction of data flow
                 continue
 

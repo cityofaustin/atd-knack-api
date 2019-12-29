@@ -6,6 +6,7 @@ from pprint import pprint as print
 import pdb
 
 import knackpy
+import requests
 
 import logging
 from _models import RecordMap
@@ -32,13 +33,7 @@ def main(src_app_id, dest_app_id, record, record_type):
     src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
     dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
 
-    if "finance" in src_app_name.lower():
-        direction = "to_data_tracker"
-
-    elif "data_tracker" in src_app_name.lower():
-        direction = "to_finance_system"
-
-    record = RecordMap(src_app_name, dest_app_name, record, record_type=record_type, direction=direction)
+    record = RecordMap(src_app_name, dest_app_name, record, record_type=record_type)
 
     if not record.payload.get("id"):
         method = "create"
@@ -52,18 +47,12 @@ def main(src_app_id, dest_app_id, record, record_type):
             record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, method
         )
     
-    except HTTPError as e:
+    except Exception as e:
         #todo: test
-        return e.response.status_code, e.response.text
+        return 400, str(e)
 
-    # Update the source record with confirmation of transmission
-    # todo: add a method to "flip" direction?
-    if direction == "to_data_tracker":
-        direction = "to_finance_system"
-    else:
-        direction = "to_data_tracker"
-
-    record = RecordMap(dest_app_name, src_app_name, res, record_type=record_type, direction=direction)
+    # we flip src/dest here to update the src app with record values from the created/updated record
+    record = RecordMap(dest_app_name, src_app_name, res, record_type=record_type)
 
     dest_obj = record.objects.get(src_app_name).get("id")
 
@@ -72,7 +61,7 @@ def main(src_app_id, dest_app_id, record, record_type):
             record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
         )
 
-    except HTTPError as e:
+    except requests.exceptions.RequestException as e:
         #todo: test
         return e.response.status_code, e.response.text
 
@@ -292,7 +281,7 @@ if __name__ == "__main__":
         "field_167": "John Clary",
         "field_167_raw": {"first": "John", "last": "Clary"},
         "field_168": '<a href="mailto:john.clary@austintexas.gov">fake.clary@austintexas.gov</a>',
-        "field_168_raw": {"email": "fakefake.clary@austintexas.gov"},
+        "field_168_raw": {"email": "fakefakefake.clary@austintexas.gov"},
         "field_169": "*********",
         "field_169_raw": "**********",
         "field_170": "active",
@@ -360,4 +349,6 @@ if __name__ == "__main__":
         "field_3446": "5b422cb82d916c3327423d41",
         "field_3446_raw": "5b422cb82d916c3327423d41",
     }
-    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", record, record_type="user_account")
+
+    res = main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", record, record_type="user_account")
+    print(res)
