@@ -24,7 +24,6 @@ from _logging import get_logger
 import _record
 from secrets import KNACK_CREDENTIALS
 
-
 app = Sanic()
 CORS(app)
 
