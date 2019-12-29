@@ -11,61 +11,6 @@ import logging
 from _models import RecordMap
 from secrets import *
 
-# todo
-# create account is working. need to set created by with data tracker user id. but that's another api call :(. need to update data tracker with finance record id after account create
-# r.e. create account- are we updating an account if the email address/division changes? how?
-# create separate ednpoints for requests/work orders and transactions. it's the right way.
-# grab auth at api and pass to main
-# update data tracker inventory items with finance knack ids
-# very bad things happen when a request fails
-# change submitted status to "ready to issue"
-# data_tracker > finance is ready to test. need to update fieldmap to set submitted/approved values on transactions/requests
-# still need to refactor finance > data tracker flow to use _inventory_request
-# clean/reduce up methods to make them smaller reusable
-# started building fieldmap for create_account. how to set created/modded by? need an api account
-# tests!
-# just use one endpoint for inventory. handles a work order or an inventory request based on src/dest
-# ^^ in which case actions need to be set at the app level in the fieldmap. and should be validated at the api level?
-# ^^ the fieldmaps or some config could drive the api actions which are validated?
-# confirm that the finance api view filters for transactions which are ready to send
-# should handle the post-transimission updates to the src app more gracefully, i.e. with fieldmaps
-# build app id into api request (currently hardcoded in custom js)
-# deleted submit page in data tracker tech work order. this happens with approvals
-# handle errors by displaying a banner in the knack ui
-# endpoint: sync inventory items, task orders
-# condtionally show "request all" button? and move to right of add items form?
-# task orders
-# create secrets template
-# move shared function to a _utils lib
-# test against latest knackpy
-# reorg / fix imports
-# cancel functionality for "requested" transactions
-# get finance inventory item ids in data tracker, keep in sync
-# ugh synchronize knack account ids between finance and data tracker
-# what to do when work order location name is blank?
-# authentication - you did create an api form in the data tracker but have not implemented api
-
-DATA_TRACKER_CONFIG = {
-    "transactions": {
-        "view": "view_2663",
-        "scene": "scene_514",
-        "ref_obj": None,
-        "obj": None,
-    }
-}
-
-# todo: move elsewhere
-inv_request_obj = "object_25"
-inv_txn_finance_obj = "object_23"
-inv_txn_data_tracker_obj = "object_36"
-work_order_request_id_field = "field_3444"
-work_orders_obj = "object_31"
-finance_inventory_request_id_on_transaction = "field_3445"
-finance_txn_record_id_field = "field_3443"
-data_tracker_txn_transmission_status = "field_3448"
-work_order_finance_account_id = "field_3449"
-data_tracker_txn_submitted_to_finance = "field_3453"  # SUBMITTED_TO_FINANCE_SYSTEM
-
 
 def post_record(record, auth, obj_key, method):
 
@@ -80,165 +25,61 @@ def post_record(record, auth, obj_key, method):
     return res
 
 
-def knackpy_wrapper(cfg_dataset, auth, filters=None):
-    return knackpy.Knack(
-        obj=cfg_dataset["obj"],
-        scene=cfg_dataset["scene"],
-        view=cfg_dataset["view"],
-        ref_obj=cfg_dataset["ref_obj"],
-        app_id=auth["app_id"],
-        filters=filters,
-        page_limit=1,
-        rows_per_page=10,
-    )
+def main(src_app_id, dest_app_id, record, record_type):
 
-
-def create_inventory_request(work_order, src_app_id, dest_app_id):
-    """
-    Create new inventory request and update the work order in Data Tracker  with the
-    request ID. The reverse flow, an Inventory Request > Work Order is not supported
-    because our business process forbids this.
-    """
+    src_app_auth = KNACK_CREDENTIALS[src_app_id]
+    dest_app_auth = KNACK_CREDENTIALS[dest_app_id]
     src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
     dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
 
-    request = RecordMap(
-        src_app_name,
-        dest_app_name,
-        work_order,
-        direction="to_finance_system",
-        type_="inventory_request",
-    )
+    if "finance" in src_app_name.lower():
+        direction = "to_data_tracker"
 
-    pdb.set_trace()
+    elif "data_tracker" in src_app_name.lower():
+        direction = "to_finance_system"
 
-    res = post_record(
-        request.payload, KNACK_CREDENTIALS[dest_app_id], inv_request_obj, "create"
-    )
+    record = RecordMap(src_app_name, dest_app_name, record, record_type=record_type, direction=direction)
 
-    # update data tracker work order with inventory request id
-    req_id = res.get("id")
-
-    # todo: handle with model
-    payload = {"id": work_order.get("id"), work_order_request_id_field: req_id}
-
-    res = post_record(payload, KNACK_CREDENTIALS[src_app_id], work_orders_obj, "update")
-
-    return req_id
-
-
-def filter_unsent_transactions_on_work_order(request_id):
-    """
-    Filter to query transactions connected to the inpurt `request_id`.
-    Note that the view is pre-filtered in Data Tracker to include only
-    those with `transaction_status` == `READY_TO_SEND`
-    """
-    return [
-        {
-            "field": finance_inventory_request_id_on_transaction,
-            "operator": "is",
-            "value": request_id,
-        }
-    ]
-
-
-def handle_txn(txn_data_tracker, src_app_id, dest_app_id, direction=None):
-    """
-    Create or update a transaction record.
-
-    TODO: handle bi-directional txns
-    """
-    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
-    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
-
-    txn = RecordMap(src_app_name, dest_app_name, txn_data_tracker, type_="inventory_txn", direction=direction)
-
-    if not txn.payload.get("id"):
+    if not record.payload.get("id"):
         method = "create"
     else:
         method = "update"
 
+    dest_obj = record.objects.get(dest_app_name).get("id")
+    
     res = post_record(
-        txn.payload, KNACK_CREDENTIALS[dest_app_id], inv_txn_finance_obj, method
+        record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, method
     )
 
-    # update data tracker transaction with transaction ID in finance
-    txn_id = res.get("id")
+    # Update the source record with confirmation of transmission
+    # todo: add a method to "flip" direction?
+    if direction == "to_data_tracker":
+        direction = "to_finance_system"
+    else:
+        direction = "to_data_tracker"
 
-    payload = {
-        "id": txn_data_tracker.get("id"),
-        finance_txn_record_id_field: txn_id,
-        data_tracker_txn_transmission_status: "SENT",
-        data_tracker_txn_submitted_to_finance: True,
-    }
+    record = RecordMap(dest_app_name, src_app_name, res, record_type=record_type, direction=direction)
+
+    dest_obj = record.objects.get(src_app_name).get("id")
 
     res = post_record(
-        payload, KNACK_CREDENTIALS[src_app_id], inv_txn_data_tracker_obj, "update"
+        record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
     )
 
     return res
 
 
-def main(src_app_id, dest_app_id, data):
-
-    src_app_auth = KNACK_CREDENTIALS[src_app_id]
-    dest_app_auth = KNACK_CREDENTIALS[dest_app_id]
-
-    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
-    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
-
-    """
-    TODO
-    - merging to handle inventory request or work order.
-    - handle actions. move actions in fieldmaps to app level
-    """
-
-    if "finance" in src_app_name.lower():
-        # handle inventory request from finance system
-        # todo: move/reduce code from _inventory_txn
-        direction = "to_data_tracker"
-
-    elif "data_tracker" in src_app_name.lower():
-        # handle work order from data tracker
-        direction = "to_finance_system"
-
-        request_id = data.get(work_order_request_id_field)
-
-        if not request_id:
-            logging.debug("Creating new inventory request")
-            request_id = create_inventory_request(data, src_app_id, dest_app_id)
-
-        pdb.set_trace()
-        filters = filter_unsent_transactions_on_work_order(request_id)
-
-        # get inventory requests from Data Tracker
-        logging.debug("Getting unsent transactions.")
-
-        txns = knackpy_wrapper(
-            DATA_TRACKER_CONFIG["transactions"], src_app_auth, filters=filters
-        )
-
-        for txn in txns.data_raw:
-            res = handle_txn(txn, src_app_id, dest_app_id, direction=direction)
-
-    else:
-        """
-        This should never happen because we validate src/dest app IDs when the
-        request is received. The KNACK_CREDENTIALS may be corrupted.
-        """
-        raise Exception("Unknown application ID provided")
-
-    # TODO: return a response ;)
-
-
 if __name__ == "__main__":
     import logging
     from _logging import get_logger
-
-    logger = get_logger("_inventory_requests")
+    logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
-
-    work_order = {
+    
+    # new transaction
+    record = {'field_1071': 'New', 'field_1071_raw': 'New', 'field_1196': '12/25/2019 10:29pm', 'field_1196_raw': {'am_pm': 'PM', 'date': '12/25/2019', 'date_formatted': '12/25/2019', 'hours': '10', 'iso_timestamp': '2019-12-25T22:29:00.000Z', 'minutes': '29', 'time': 1349, 'timestamp': '12/25/2019 10:29 pm', 'unix_timestamp': 1577312940000}, 'field_1202': '<span class="581602e43285e4a22c90de05">John Clary</span>', 'field_1202_raw': [{'id': '581602e43285e4a22c90de05', 'identifier': 'John Clary'}], 'field_1409': 0, 'field_1409_raw': 0, 'field_1410': '', 'field_1412': 'Assigned', 'field_1412_raw': 'Assigned', 'field_1416': 'Submitted to Warehouse', 'field_1416_raw': 'Submitted to Warehouse', 'field_2476': 'No', 'field_2476_raw': False, 'field_2478': '$84.0000', 'field_2478_raw': 84, 'field_2479': '$840.0000', 'field_2479_raw': 840, 'field_2481': 'No', 'field_2481_raw': False, 'field_2486': '', 'field_2716': '<span class="581602e43285e4a22c90de05">John Clary</span>', 'field_2716_raw': [{'id': '581602e43285e4a22c90de05', 'identifier': 'John Clary'}], 'field_3387': '199', 'field_3387_raw': '199', 'field_3439': '$84.00', 'field_3439_raw': '$84.00', 'field_3440': 'Yes', 'field_3440_raw': True, 'field_3441': 'Yes', 'field_3441_raw': True, 'field_3443': '5e043f63a7d5e60015c08183', 'field_3443_raw': '5e043f63a7d5e60015c08183', 'field_3445': '5e043f54933e8200153902cf', 'field_3445_raw': '5e043f54933e8200153902cf', 'field_3447': '5e0820f03245070015fb14b3', 'field_3447_raw': '5e0820f03245070015fb14b3', 'field_3448': 'SENT', 'field_3448_raw': 'SENT', 'field_3451': '5b773da5fb0fe322c390274b', 'field_3451_raw': '5b773da5fb0fe322c390274b', 'field_3452': '<span class="581602e43285e4a22c90de05">John Clary</span>', 'field_3452_raw': [{'id': '581602e43285e4a22c90de05', 'identifier': 'John Clary'}], 'field_3453': 'Yes', 'field_3453_raw': True, 'field_513': '<span class="5dfa6ac42057600ac95e792e">100 Amp Breaker Panel | EA</span>', 'field_513_raw': [{'id': '5dfa6ac42057600ac95e792e', 'identifier': '100 Amp Breaker Panel | EA'}], 'field_514': '<span class="5df10bf86d76b100157d1003">WRK19-070800</span>', 'field_514_raw': [{'id': '5df10bf86d76b100157d1003', 'identifier': 'WRK19-070800'}], 'field_524': '10.00', 'field_524_raw': 10, 'field_768': '', 'field_769': 'WORK ORDER', 'field_769_raw': 'WORK ORDER', 'field_770': 6501, 'field_770_raw': 6501, 'field_771': '12/25/2019 22:29', 'field_771_raw': {'am_pm': 'PM', 'date': '12/25/2019', 'date_formatted': '12/25/2019', 'hours': '10', 'iso_timestamp': '2019-12-25T22:29:00.000Z', 'minutes': '29', 'time': 1349, 'timestamp': '12/25/2019 10:29 pm', 'unix_timestamp': 1577312940000}, 'field_854': '', 'id': '5e04372f11440400184d79f0'}
+    
+    # work order
+    record = {
         "id": "5df10bf86d76b100157d1003",
         "field_1752": "Yes",
         "field_1752_raw": True,
@@ -435,4 +276,78 @@ if __name__ == "__main__":
         "field_3449": "5b422cb82d916c3327423d41",
     }
 
-    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", work_order)
+    # user account
+    record = {
+        "id": "581602e43285e4a22c90de05",
+        "field_167": "John Clary",
+        "field_167_raw": {"first": "John", "last": "Clary"},
+        "field_168": '<a href="mailto:john.clary@austintexas.gov">fake.clary@austintexas.gov</a>',
+        "field_168_raw": {"email": "fakefake.clary@austintexas.gov"},
+        "field_169": "*********",
+        "field_169_raw": "**********",
+        "field_170": "active",
+        "field_170_raw": "active",
+        "field_171": '<span class="profile_10">Asset Editor</span><br /><span class="profile_19">Viewer</span><br /><span class="profile_20">System Administrator</span><br /><span class="profile_24">Program Editor</span><br /><span class="profile_57">Supervisor | AMD</span><br /><span class="profile_65">Technician | AMD</span><br /><span class="profile_68">Quote the of Week Editor</span><br /><span class="profile_76">Inventory Editor</span><br /><span class="profile_97">Account Administrator</span>',
+        "field_171_raw": [
+            "profile_10",
+            "profile_19",
+            "profile_20",
+            "profile_24",
+            "profile_57",
+            "profile_65",
+            "profile_68",
+            "profile_76",
+            "profile_97",
+        ],
+        "field_1502": "Account Administrator, Asset Editor, Inventory Editor, Program Editor, Quote the of Week Editor, Supervisor | AMD, Viewer",
+        "field_1502_raw": [
+            "Account Administrator",
+            "Asset Editor",
+            "Inventory Editor",
+            "Program Editor",
+            "Quote the of Week Editor",
+            "Supervisor | AMD",
+            "Viewer",
+        ],
+        "field_2629": "",
+        "field_954": "Support Staff",
+        "field_954_raw": "Support Staff",
+        "field_2590": "(512) 974-3546",
+        "field_2590_raw": {
+            "formatted": "(512) 974-3546",
+            "full": "5129743546",
+            "number": "9743546",
+            "area": "512",
+        },
+        "field_1180": "ATD",
+        "field_1180_raw": "ATD",
+        "field_2186": "ARTERIAL MANAGEMENT",
+        "field_2186_raw": "ARTERIAL MANAGEMENT",
+        "field_3431": "",
+        "field_1231": "01/01/2017",
+        "field_1231_raw": {
+            "date": "01/01/2017",
+            "date_formatted": "01/01/2017",
+            "hours": "12",
+            "minutes": "00",
+            "am_pm": "AM",
+            "unix_timestamp": 1483228800000,
+            "iso_timestamp": "2017-01-01T00:00:00.000Z",
+            "timestamp": "01/01/2017 12:00 am",
+            "time": 720,
+        },
+        "field_1501": '<span class="581602e43285e4a22c90de05">John Clary</span>',
+        "field_1501_raw": [
+            {"id": "581602e43285e4a22c90de05", "identifier": "John Clary"}
+        ],
+        "field_1498": "",
+        "field_1503": "",
+        "field_1504": "",
+        "field_2305": "$20.00",
+        "field_2305_raw": "20.00",
+        "field_2206": "Arterial Management",
+        "field_2206_raw": "Arterial Management",
+        "field_3446": "5b422cb82d916c3327423d41",
+        "field_3446_raw": "5b422cb82d916c3327423d41",
+    }
+    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814", record, record_type="user_account")

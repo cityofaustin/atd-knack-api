@@ -53,13 +53,12 @@ async def index(request):
 @app.route("/inventory_request", methods=["POST"])
 async def inventory_request(request):
     """
-    Facilitates inventory transactions between the AMD Data Tracker and the Finance and
+    TODO: udpate with separate docs for requests/txns
+    Facilitates inventory requests between the AMD Data Tracker and the Finance and
     Purchasing system.
 
-    Listens for an inventory request from a `src` app, either in the form of a work order
-    (in the case of the Data Tracker) or an inventory request (in the case of the Finance
-    system) and generates a corresponding request in the `dest` app.
-    
+    Listens for a work order from the Data Tracker and generates a corresponding
+    inventory request in the finance system.
     --- 
 
     When the request payload is a work order record dict from the Data Tracker,
@@ -69,18 +68,10 @@ async def inventory_request(request):
     exist for this work order.
     
     2. The _inventory_requests script fetches any `READY_TO_SEND` item "transactions"
-    connected to this request. These transactions are fetched from a pre-filtered table
-    view in the Data Tracker.
+    connected to this request.
 
-    3. Inventory item "transactions" are created or updated on the connected request.
-
-    4. The work order in the Data Tracker is updated with the Knack record ID of the
+    3. The work order in the Data Tracker is updated with the Knack record ID of the
     inventory request in the Finance system.
-
-    5. The inventory transaction records in the Data Tracker are updated with the Knack
-    record IDs of the corresponding transactions in the Finance system, and their
-    `transmission_status` and `transaction_status` is to confirm the request has been
-    sent to the Finance system.
     
     ---
 

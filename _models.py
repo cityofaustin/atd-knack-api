@@ -1,43 +1,36 @@
 from datetime import datetime
 
-import _fieldmaps
+from _fieldmaps import fieldmap
 import _transforms
 
 class RecordMap(object):
     """
     Generate an inventory request from a work order.
     """
-    def __init__(self, src_app_name, dest_app_name, data, direction=None, type_=None):
+    def __init__(self, src_app_name, dest_app_name, data, direction=None, record_type=None):
 
-        
         self.app_name_dest = dest_app_name
         self.app_name_src = src_app_name
         self.data = data
         self.dir = direction
-        self.type = type_
+        self.record_type = record_type
+        self.fieldmap = fieldmap.get(record_type)
 
-        if self.type  == "inventory_request":
-            self.fieldmap = _fieldmaps.inventory_request
-        
-        elif self.type  == "inventory_txn":
-            self.fieldmap = _fieldmaps.inventory_txn
+        if not self.fieldmap:
+            raise Exception("Cannot find fieldmap. Unknown record `type_` provided.")
 
-        elif self.type  == "user_account":
-            self.fieldmap = _fieldmaps.user_account
-        
-        else:
-            raise Exception("Unspported record type. Choose `inventory_request`, `inventory_txn`, or `issue_item`.") 
-
+        self.fields = self.fieldmap.get("fields")
+        self.objects = self.fieldmap.get("objects")
         self.payload = self._build_payload()
 
 
     def _build_payload(self):
         """
-        Map input data to output fields. Fields not definied in `_fieldmaps` are dropped.
+        Map input data to output fields. Fields not definied in `self.fields` are dropped.
         """
         payload = {}
 
-        for field in self.fieldmap:
+        for field in self.fields:
             
             if self.dir not in field.get("directions"):
                 # ignore fields that do not support the direction of data flow

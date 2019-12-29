@@ -4,7 +4,7 @@ translating records across knack applications. Entries are structured like
 so:
     - {top-level key} (str): the top-level key of each entry is the type of record
     that the mapping defines. E.g., "inventory_request" or "inventory_txn". The names
-    defined here must match exactly the name of an API route.
+    defined here are received from the `record_type` API request parameter.
     
     - objects (dict) : A dict of application names, each with the Knack object ID
         where the records are stored. Each application names is defined in
@@ -62,10 +62,18 @@ fieldmap = {
             },
             {
                 "comment": "The Knack record ID of the work order in Data Tracker.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
                     "finance_purchasing_prod": {"id": "field_767"},
                     "data_tracker_prod": {"id": "id"},
+                },
+            },
+            {
+                "comment": "The Knack record ID of the inventory request in the Finance System.",
+                "directions": ["to_finance_system", "to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "id"},
+                    "data_tracker_prod": {"id": "field_3444"},
                 },
             },
             {
@@ -91,8 +99,8 @@ fieldmap = {
     },
     "inventory_txn": {
         "objects": {
-            "finance_purchasing_prod": "object_23",
-            "data_tracker_prod": "object_36",
+            "finance_purchasing_prod": {"id" : "object_23"},
+            "data_tracker_prod": { "id" : "object_36"},
         },
         "fields": [
             {
@@ -188,13 +196,13 @@ fieldmap = {
     },
     "user_account": {
         "objects": {
-            "finance_purchasing_prod": "object_3",
-            "data_tracker_prod": "object_9",
+            "finance_purchasing_prod": {"id" : "object_3"},
+            "data_tracker_prod": {"id" : "object_9"},
         },
         "fields": [
             {
                 "comment": "The Knack record ID of the account in the Data Tracker",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
                     "finance_purchasing_prod": {"id": "field_791"},
                     "data_tracker_prod": {"id": "id"},
@@ -255,6 +263,14 @@ fieldmap = {
                 "apps": {
                     "finance_purchasing_prod": {"id": "field_155"},
                     "data_tracker_prod": {"id": "field_2186"},
+                },
+            },
+            {
+                "comment": "The Knack record ID of the finance system account",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "id"},
+                    "data_tracker_prod": {"id": "field_3446"},
                 },
             },
         ],
