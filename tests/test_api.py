@@ -1,6 +1,10 @@
 import pdb
 import requests
 
+data_tracker = "5815f29f7f7252cc2ca91c4f"
+finance_system = "5b422c9b13774837e54ed814"
+endpoint = "http://localhost:8000/"
+
 records = {
     "inventory_txn" : {
         "field_1071": "New",
@@ -369,16 +373,29 @@ records = {
     }
 }
 
-if __name__ == "__main__":
-    data_tracker = "5815f29f7f7252cc2ca91c4f"
-    finance_system = "5b422c9b13774837e54ed814"
-    endpoint = "http://localhost:8000/"
-    res = requests.get(endpoint)
-    print(res.text)
+class TestClass:
+    def test_api_online(self):
+        res = requests.get(endpoint)
+        assert(res.status_code == 200)
 
-    record_type = "inventory_request"
+    def test_record_invalid_src_app_ids(self):
+        record_type = "inventory_request"
+        src_app_id = "abc123"
+        dest_app_id = data_tracker
 
-    res = requests.post(
-        f"{endpoint}record?src={data_tracker}&dest={finance_system}&type={record_type}",
-        json=records[record_type])
-    pdb.set_trace()
+        res = requests.post(
+            f"{endpoint}record?src={src_app_id}&dest={dest_app_id}&type={record_type}",
+            json=records[record_type])
+        
+        assert(res.status_code != 200)
+
+    def test_record_invalid_dest_app_ids(self):
+        record_type = "inventory_request"
+        src_app_id = data_tracker
+        dest_app_id = "abc_123"
+
+        res = requests.post(
+            f"{endpoint}record?src={src_app_id}&dest={dest_app_id}&type={record_type}",
+            json=records[record_type])
+        
+        assert(res.status_code != 200)
