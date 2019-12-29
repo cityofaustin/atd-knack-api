@@ -38,6 +38,54 @@ so:
 
 """
 FIELDMAP = {
+    "inventory_item": {
+        "objects": {
+            "finance_purchasing_prod": {"id": "object_19"},
+            "data_tracker_prod": {"id": "object_15"},
+        },
+        "fields": [
+            {
+                "comment": "The category of item.",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "field_363"},
+                    "data_tracker_prod": {"id": "field_243"},
+                },
+            },
+            {
+                "comment": "The item name.",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "field_364"},
+                    "data_tracker_prod": {"id": "field_244"},
+                },
+            },
+            {
+                "comment": "The item's stock number (SKU)",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "field_720"},
+                    "data_tracker_prod": {"id": "field_3467"},
+                },
+            },
+            {
+                "comment": "The item's status (active/inactive)",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "field_370"},
+                    "data_tracker_prod": {"id": "field_1068"},
+                },
+            },
+            {
+                "comment": "The Knack record ID of the item in the finance system.",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": "id"},
+                    "data_tracker_prod": {"id": "field_3450"},
+                },
+            },
+        ],
+    },
     "inventory_request": {
         "objects": {
             "finance_purchasing_prod": {"id": "object_25"},
@@ -99,8 +147,8 @@ FIELDMAP = {
     },
     "inventory_txn": {
         "objects": {
-            "finance_purchasing_prod": {"id" : "object_23"},
-            "data_tracker_prod": { "id" : "object_36"},
+            "finance_purchasing_prod": {"id": "object_23"},
+            "data_tracker_prod": {"id": "object_36"},
         },
         "fields": [
             {
@@ -196,8 +244,8 @@ FIELDMAP = {
     },
     "user_account": {
         "objects": {
-            "finance_purchasing_prod": {"id" : "object_3"},
-            "data_tracker_prod": {"id" : "object_9"},
+            "finance_purchasing_prod": {"id": "object_3"},
+            "data_tracker_prod": {"id": "object_9"},
         },
         "fields": [
             {
