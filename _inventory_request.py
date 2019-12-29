@@ -12,8 +12,13 @@ from _models import RecordMap
 from secrets import *
 
 # todo
+# create account is working. need to set created by with data tracker user id. but that's another api call :(. need to update data tracker with finance record id after account create
+# r.e. create account- are we updating an account if the email address/division changes? how?
+# create separate ednpoints for requests/work orders and transactions. it's the right way.
+# grab auth at api and pass to main
 # update data tracker inventory items with finance knack ids
 # very bad things happen when a request fails
+# change submitted status to "ready to issue"
 # data_tracker > finance is ready to test. need to update fieldmap to set submitted/approved values on transactions/requests
 # still need to refactor finance > data tracker flow to use _inventory_request
 # clean/reduce up methods to make them smaller reusable
@@ -114,6 +119,7 @@ def create_inventory_request(work_order, src_app_id, dest_app_id):
     # update data tracker work order with inventory request id
     req_id = res.get("id")
 
+    # todo: handle with model
     payload = {"id": work_order.get("id"), work_order_request_id_field: req_id}
 
     res = post_record(payload, KNACK_CREDENTIALS[src_app_id], work_orders_obj, "update")
