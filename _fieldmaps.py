@@ -37,7 +37,7 @@ so:
                 provided. it is defined on the `dest` application field definition.
 
 """
-fieldmap = {
+FIELDMAP = {
     "inventory_request": {
         "objects": {
             "finance_purchasing_prod": {"id": "object_25"},

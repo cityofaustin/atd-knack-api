@@ -19,7 +19,7 @@ from sanic import response
 from sanic import exceptions
 from sanic_cors import CORS, cross_origin
 
-from _fieldmaps import fieldmap
+from _fieldmaps import FIELDMAP
 from _logging import get_logger
 import _record
 from secrets import KNACK_CREDENTIALS
@@ -49,7 +49,7 @@ def _valid_app_ids(app_ids):
 
 def _valid_record_type(record_type):
     try:
-        fieldmap = fieldmap[record_type]
+        fieldmap = FIELDMAP[record_type]
 
     except KeyError:
         return False
@@ -71,7 +71,10 @@ async def record(request):
     src = request.args.get("src")
     dest = request.args.get("dest")
     data = request.json
-    record_type = request.ags.get("type")
+    record_type = request.args.get("type")
+
+    print(f"SRC!!!!! {src}")
+    print(f"DEST!!!!! {dest}")
 
     if not src or not dest:
         _403("`src` and `dest` are required.")
@@ -79,7 +82,7 @@ async def record(request):
     if not data:
         _403("`data` json is required.")
 
-    if not record_tyoe:
+    if not record_type:
         _403("Record `type` is required.")
 
     if not _valid_app_ids([src, dest]):
@@ -97,7 +100,7 @@ async def record(request):
         raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
 
     if status_code == 200:
-        return respons.text(message)
+        return response.text(message)
 
     else:
         raise ServerError(message, status_code=500)

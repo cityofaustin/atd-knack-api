@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from _fieldmaps import fieldmap
+from _fieldmaps import FIELDMAP
 import _transforms
 
 class Record(object):
     """
-    Generate an inventory request from a work order.
+    Transform a Knack record from a source application to a destination application.
     """
     def __init__(self, src_app_name, dest_app_name, data, record_type=None):
 
@@ -13,7 +13,7 @@ class Record(object):
         self.app_name_src = src_app_name
         self.data = data
         self.record_type = record_type
-        self.fieldmap = fieldmap.get(record_type)
+        self.fieldmap = FIELDMAP.get(record_type)
 
         if not self.fieldmap:
             raise Exception("Cannot find fieldmap. Unknown record `type_` provided.")
