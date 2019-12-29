@@ -25,7 +25,7 @@ Each fieldmap contains an array of field dictionaries, with the following struct
 
         - default : used to set the default value. required if no field `id` is present.
             ie, this value is set on the destination payload when no src data is 
-            provided. it is defined on the `src` application field definition.
+            provided. it is defined on the `dest` application field definition.
 
 """
 inventory_request = [
@@ -165,8 +165,7 @@ user_account = [
         "directions": ["to_finance_system"],
         "apps": {
             "finance_purchasing_prod": {
-                "id": "TODO",
-                "transform": "text_to_connection",
+                "id": "field_791",
             },
             "data_tracker_prod": {"id": "id"},
         },
@@ -176,20 +175,18 @@ user_account = [
         "directions": ["to_finance_system"],
         "apps": {
             "finance_purchasing_prod": {
-                "id": "",
-                "transform": "TODO-how to populate name fields?",
+                "id": "field_4"
             },
-            "data_tracker_prod": {"id": "field_167"},
+            "data_tracker_prod": {"id": "field_167_raw"},
         },
     },
     {
         "comment": "The user's email address.",
         "directions": ["to_finance_system"],
         "apps": {
-            "finance_purchasing_prod": {"id": "", "transform": "text_to_connection"},
+            "finance_purchasing_prod": {"id": "field_5", "transform": "handle_email"},
             "data_tracker_prod": {
-                "id": "field_168",
-                "transform": "TODO-handle email field",
+                "id": "field_168_raw",
             },
         },
     },
@@ -197,7 +194,7 @@ user_account = [
         "comment": "The users password.",
         "directions": ["to_finance_system"],
         "apps": {
-            "finance_purchasing_prod": {"id": ""},
+            "finance_purchasing_prod": {"id": "field_6", "transform" : "random_password"},
             "data_tracker_prod": {"id": "field_169"},
         },
     },
@@ -205,23 +202,27 @@ user_account = [
         "comment": "The user's status (active/disabled).",
         "directions": ["to_finance_system"],
         "apps": {
-            "finance_purchasing_prod": {"id": ""},
+            "finance_purchasing_prod": {
+                "id": "field_7",
+
+
+            },
             "data_tracker_prod": {"id": "field_170"},
         },
     },
     {
-        "comment": "The user's assigned roles.",
+        "comment": "The user's assigned roles. We ignore the source user role and default it to the viewer role in the Finance System.",
         "directions": ["to_finance_system"],
         "apps": {
-            "finance_purchasing_prod": {"id": "", "transform": "TODO"},
-            "data_tracker_prod": {"id": "field_171"},
+            "finance_purchasing_prod": {"id": "field_8", "default" : ["profile_27"]},
+            "data_tracker_prod": {"id": None},
         },
     },
     {
         "comment": "The user's business unit/workgroup.",
         "directions": ["to_finance_system"],
         "apps": {
-            "finance_purchasing_prod": {"id": ""},
+            "finance_purchasing_prod": {"id": "field_155"},
             "data_tracker_prod": {"id": "field_2186"},
         },
     },
