@@ -9,7 +9,7 @@ import knackpy
 import requests
 
 import logging
-from _models import RecordMap
+from _models import Record
 from secrets import *
 
 
