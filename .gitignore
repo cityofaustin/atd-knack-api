@@ -2,6 +2,7 @@ __pycache__
 error.log
 secrets.py
 .DS_Store
-log/
 notes.md
 workflow.md
+log/
+temp/
