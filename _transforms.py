@@ -21,7 +21,7 @@ def handle_email(d):
         return ""
 
 
-def random_password(val, length=20):
+def random_password(val, length=30):
     """
     Generate a random string with the combination of lowercase and uppercase letters
     numbers, and punctuation.
