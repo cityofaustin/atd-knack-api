@@ -63,7 +63,7 @@ async def record(request):
     This service is designed for two-way communication between Knack applications,
     and requires appropriate conifguration in the source and destination
     applications. Notably, records in each application will need dedicated fields
-    to store the Knack record UUID of the cooresponding record in it's complement
+    to store the Knack record UUID of the corresponding record in it's complement
     application. This allows existing records to be updated, rather than created,
     and it enables the setting of record connections across Knack objects. 
 
@@ -85,18 +85,18 @@ async def record(request):
     
     Requests are handled like so:
     
-    1. An API request is initated by custom CORS request that has been configured in
+    1. An API request is initated by a custom CORS request that has been configured in
     the source Knack application, typically after a form submission event.
 
     2. The API validates that all required values are present, and validates that the
-    `src` and `dest` application IDs are known defined `secrets.py`, and that the
+    `src` and `dest` application IDs are defined `secrets.py`, and that the
     requested `record_type` is defined in `fieldmaps.py`.
 
     3. Request data is translated to a new request payload according to its fieldmap.
     
     4. The translated source data is posted to the destination application.
 
-    5. The responsde data from the destination application is then translated to
+    5. The response data from the destination application is then translated to
     the format of source application, and source application is updated accordingly.
     
     So, this endpoint triggers two record updates in response to
