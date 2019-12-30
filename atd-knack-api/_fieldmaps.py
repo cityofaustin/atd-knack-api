@@ -6,6 +6,8 @@ so:
     that the mapping defines. E.g., "inventory_request" or "inventory_txn". The names
     defined here are received from the `record_type` API request parameter.
     
+    - comment (str) : An optional comment that documents the purpose of this record_type.
+
     - objects (dict) : A dict of application names, each with the Knack object ID
         where the records are stored. Each application names is defined in
         `secrets.py`. See `apps` note below.
@@ -39,6 +41,7 @@ so:
 """
 FIELDMAP = {
     "inventory_item": {
+        "comment" : "Translates between work order records (data tracker) and inventory requests (finance system).",
         "objects": {
             "finance_purchasing_prod": {"id": "object_19"},
             "data_tracker_prod": {"id": "object_15"},
