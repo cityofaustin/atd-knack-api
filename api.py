@@ -3,12 +3,26 @@ Sanic server for integrating external functions and services.
 
 Add something like this to data tracker:
 
-$(document).on('knack-form-submit.view_2662', function(event, view, record) {
-    var payload = JSON.stringify(record)
-    $.post("http://localhost:8000/record?src=5815f29f7f7252cc2ca91c4f&dest=5b422c9b13774837e54ed814", payload, record_type="inventory_request").done(function (data) {
+$(document).on('knack-form-submit.view_2664', function(event, view, record) {
+    var src = Knack.application_id;
+    var dest = "5b422c9b13774837e54ed814"; // finance prod
+    var payload = JSON.stringify(record);
+    var type = "inventory_request";
+    $.post("http://localhost:8000/record?src=" + src + "&dest=" + dest + "&type=" + type, payload).done(function (data) {
         console.log(data);
+
+        var token = Knack.getUserToken();
+        var headers = {"Authorization": token, 'X-Knack-Application-ID': src};
+        var url = "https://api.knack.com/v1/pages/scene_255/views/view_1966/records"
+        
+        $.ajaxSetup({headers:headers});
+
+        $.get(url, headers=headers).done(function(data) {
+            console.log(data)
+        })
     });
 });
+
 """
 from datetime import datetime
 import logging
@@ -71,10 +85,7 @@ async def record(request):
     dest = request.args.get("dest")
     data = request.json
     record_type = request.args.get("type")
-
-    print(f"SRC!!!!! {src}")
-    print(f"DEST!!!!! {dest}")
-
+    print(request)
     if not src or not dest:
         _403("`src` and `dest` are required.")
 
