@@ -240,6 +240,14 @@ FIELDMAP = {
                     "data_tracker_prod": {"id": "field_3448", "default": True},
                 },
             },
+            {
+                "comment": "If the txn record has been sent to the Finance System.",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": None},
+                    "data_tracker_prod": {"id": "field_3453", "default": True},
+                },
+            }
         ],
     },
     "user_account": {
