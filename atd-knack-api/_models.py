@@ -30,11 +30,11 @@ class Record(object):
         properly filter fields
          based on the src/dest applications.
         """
-        if "finance" in self.app_name_src.lower():
-            direction = "to_data_tracker"
-
-        elif "data_tracker" in self.app_name_src.lower():
+        if "finance" in self.app_name_dest.lower():
             direction = "to_finance_system"
+
+        elif "data_tracker" in self.app_name_dest.lower():
+            direction = "to_data_tracker"
 
         return direction
 
