@@ -12,7 +12,6 @@ from sanic_cors import CORS, cross_origin
 
 from _fieldmaps import FIELDMAP
 from _logging import get_logger
-import _record
 import _inventory
 from secrets import KNACK_CREDENTIALS
 
@@ -81,12 +80,13 @@ async def record(request):
     the source Knack application, typically after a form submission event.
 
     2. The API validates that all required values are present, and validates that the
-    `src` and `dest` application IDs are defined `secrets.py`, and that the
-    requested `record_type` is defined in `fieldmaps.py`.
+    `src` and `dest` application IDs are defined `secrets.py`.
 
-    3. Request data is translated to a new request payload according to its fieldmap.
+    3. The request triggers `_inventory.py`, which fetches work order records from
+    pre-configured Knack API views which are "READY_TO_SEND".
     
-    4. The translated source data is posted to the destination application.
+    4. The work orders are translated to inventory requests, and posted to the destination
+    application.
 
     5. The response data from the destination application is then translated to
     the format of source application, and source application is updated accordingly.
