@@ -26,33 +26,33 @@ def post_record(record, auth, obj_key, method):
     return res
 
 
-def main(src_app_id, dest_app_id, record, record_type):
+def main(app_id_src, app_id_dest, record, record_type):
 
-    src_app_auth = KNACK_CREDENTIALS[src_app_id]
-    dest_app_auth = KNACK_CREDENTIALS[dest_app_id]
-    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
-    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
+    app_auth_src = KNACK_CREDENTIALS[app_id_src]
+    app_auth_dest = KNACK_CREDENTIALS[app_id_dest]
+    app_name_src = KNACK_CREDENTIALS[app_id_src]["name"]
+    app_name_dest = KNACK_CREDENTIALS[app_id_dest]["name"]
 
-    record = Record(src_app_name, dest_app_name, record, record_type=record_type)
+    record = Record(app_name_src, app_name_dest, record, record_type=record_type)
 
-    dest_obj = record.knack_cfg.get(dest_app_name).get("object")
+    dest_obj = record.knack_cfg.get(app_name_dest).get("object")
 
     try:
         res = post_record(
-            record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, record.method
+            record.payload, KNACK_CREDENTIALS[app_id_dest], dest_obj, record.method
         )
 
     except Exception as e:
         return 400, str(e)
 
     # we flip src/dest here to update the src app with record values from the created/updated record
-    record = Record(dest_app_name, src_app_name, res, record_type=record_type)
+    record = Record(app_name_dest, app_name_src, res, record_type=record_type)
 
-    dest_obj = record.knack_cfg.get(src_app_name).get("object")
+    dest_obj = record.knack_cfg.get(app_name_src).get("object")
 
     try:
         res = post_record(
-            record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
+            record.payload, KNACK_CREDENTIALS[app_id_src], dest_obj, "update"
         )
 
     except requests.exceptions.RequestException as e:
