@@ -41,7 +41,7 @@ def handle_request(app_id_src, app_id_dest, data, record_type):
     record = Record(
         app_id_dest, app_id_src, res, record_type=record_type, callback=True
     )
-
+    print(record.payload)
     res = record.send()
 
     return res
@@ -54,7 +54,7 @@ def main(app_id_src, app_id_dest):
 
     cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    if config.get("scene"):
+    if cfg.get("scene"):
         """
         We do not define a scene/view for inventory requests coming from the Finance
         System. This is because the work orders are never updated from the Finance
