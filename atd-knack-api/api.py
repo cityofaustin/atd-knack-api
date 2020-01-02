@@ -57,55 +57,9 @@ async def index(request):
 @app.route("/inventory", methods=["POST"])
 async def record(request):
     """
-    Facilitates record transformation and copying between Knack applications.
-    Currently supports the exchange of inventory-related records between
-    Data Tracker and the Finance and Purchasing System.
-    
-    This service is designed for two-way communication between Knack applications,
-    and requires appropriate conifguration in the source and destination
-    applications. Notably, records in each application will need dedicated fields
-    to store the Knack record UUID of the corresponding record in it's complement
-    application. This allows existing records to be updated, rather than created,
-    and it enables the setting of record connections across Knack objects. 
+    Facilitates transformation and copying of inventory records between the Finance
+    System and the Data Tracker.
 
-    Request Parameters
-    ----------
-    src : str (required)
-        The application ID of the source application
-    
-    dest : str (required)
-        The application ID of the destination application
-    """
-    src = request.args.get("src")
-    dest = request.args.get("dest")
-    
-    if not src or not dest:
-        _403("`src` and `dest` are required.")
-
-    if not _valid_app_ids([src, dest]):
-        _403("Unknown `src` or `dest` application ID(s) provided.")
-
-    try:
-        status_code, message = _inventory.main(src, dest)
-
-    except Exception as e:
-        # todo: debug only. this is not safe!
-        # return a 5xx error instead.
-        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
-
-    if status_code == 200:
-        return response.text(message)
-
-    else:
-        raise ServerError(message, status_code=503)
-
-@app.route("/record", methods=["POST"])
-async def record(request):
-    """
-    Facilitates record transformation and copying between Knack applications.
-    Currently supports the exchange of inventory-related records between
-    Data Tracker and the Finance and Purchasing System.
-    
     This service is designed for two-way communication between Knack applications,
     and requires appropriate conifguration in the source and destination
     applications. Notably, records in each application will need dedicated fields
@@ -121,15 +75,7 @@ async def record(request):
     dest : str (required)
         The application ID of the destination application
 
-    record_type : str (required)
-        The type of record to be transmitted. This value is used to retrieve the
-        correct fieldmap definitions which will be applied to the record translation.
-        Valide `record_type`s are defined in _fieldmaps.py.
-
-    data : Content-Type:application/json (required)
-        The Knack record data to be transmitted.
-    
-    Requests are handled like so:
+     Requests are handled like so:
     
     1. An API request is initated by a custom CORS request that has been configured in
     the source Knack application, typically after a form submission event.
@@ -161,26 +107,15 @@ async def record(request):
     """
     src = request.args.get("src")
     dest = request.args.get("dest")
-    data = request.json
-    record_type = request.args.get("type")
-    print(request)
+    
     if not src or not dest:
         _403("`src` and `dest` are required.")
-
-    if not data:
-        _403("`data` json is required.")
-
-    if not record_type:
-        _403("Record `type` is required.")
 
     if not _valid_app_ids([src, dest]):
         _403("Unknown `src` or `dest` application ID(s) provided.")
 
-    if not _valid_record_type(record_type):
-        _403("Unknown record `type` provided.")
-
     try:
-        status_code, message = _record.main(src, dest, data, record_type=record_type)
+        status_code, message = _inventory.main(src, dest)
 
     except Exception as e:
         # todo: debug only. this is not safe!
