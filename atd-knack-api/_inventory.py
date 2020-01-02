@@ -49,20 +49,17 @@ def handle_request(src_app_id, dest_app_id, data, record_type):
 
     record = Record(src_app_name, dest_app_name, data, record_type=record_type)
 
-    dest_obj = record.knack_cfg.get(dest_app_name).get("object")
+    res = record.send()
 
-    res = post_record(
-        record.payload, KNACK_CREDENTIALS[dest_app_id], dest_obj, record.method
+    """
+    We flip src/dest here to "callback" to the src app with record values from the 
+    created/updated record.
+    """
+    record = Record(
+        dest_app_name, src_app_name, res, record_type=record_type, callback=True
     )
 
-    # we flip src/dest here to update the src app with record values from the created/updated record
-    record = Record(dest_app_name, src_app_name, res, record_type=record_type, callback=True)
-
-    dest_obj = record.knack_cfg.get(src_app_name).get("object")
-
-    res = post_record(
-        record.payload, KNACK_CREDENTIALS[src_app_id], dest_obj, "update"
-    )
+    res = record.send()
 
     return res
 
@@ -71,11 +68,11 @@ def main(src_app_id, dest_app_id):
     src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
 
     record_type = "inventory_request"
-    
+
     cfg = FIELDMAP[record_type]["knack_cfg"][src_app_name]
 
     inv_reqs = knackpy_wrapper(cfg, src_app_id)
-    
+
     for inv_req in inv_reqs.data_raw:
         res = handle_request(src_app_id, dest_app_id, inv_req, record_type)
 
@@ -86,7 +83,7 @@ def main(src_app_id, dest_app_id):
     inv_txns = knackpy_wrapper(cfg, src_app_id)
 
     for inv_txn in inv_txns.data_raw:
-        res = handle_request(src_app_id, dest_app_id, inv_txn, record_type)        
+        res = handle_request(src_app_id, dest_app_id, inv_txn, record_type)
 
     return 200, "success"
 
