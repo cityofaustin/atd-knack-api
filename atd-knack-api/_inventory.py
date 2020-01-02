@@ -41,13 +41,9 @@ def post_record(record, auth, obj_key, method):
     return res
 
 
-def handle_request(src_app_id, dest_app_id, data, record_type):
-    src_app_auth = KNACK_CREDENTIALS[src_app_id]
-    dest_app_auth = KNACK_CREDENTIALS[dest_app_id]
-    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
-    dest_app_name = KNACK_CREDENTIALS[dest_app_id]["name"]
+def handle_request(app_id_src, app_id_dest, data, record_type):
 
-    record = Record(src_app_name, dest_app_name, data, record_type=record_type)
+    record = Record(app_id_src, app_id_dest, data, record_type=record_type)
 
     res = record.send()
 
@@ -56,7 +52,7 @@ def handle_request(src_app_id, dest_app_id, data, record_type):
     created/updated record.
     """
     record = Record(
-        dest_app_name, src_app_name, res, record_type=record_type, callback=True
+        app_id_dest, app_id_src, res, record_type=record_type, callback=True
     )
 
     res = record.send()
@@ -64,26 +60,26 @@ def handle_request(src_app_id, dest_app_id, data, record_type):
     return res
 
 
-def main(src_app_id, dest_app_id):
-    src_app_name = KNACK_CREDENTIALS[src_app_id]["name"]
+def main(app_id_src, app_id_dest):
+    app_name_src = KNACK_CREDENTIALS[app_id_src]["name"]
 
     record_type = "inventory_request"
 
-    cfg = FIELDMAP[record_type]["knack_cfg"][src_app_name]
+    cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    inv_reqs = knackpy_wrapper(cfg, src_app_id)
+    inv_reqs = knackpy_wrapper(cfg, app_id_src)
 
     for inv_req in inv_reqs.data_raw:
-        res = handle_request(src_app_id, dest_app_id, inv_req, record_type)
+        res = handle_request(app_id_src, app_id_dest, inv_req, record_type)
 
     record_type = "inventory_txn"
 
-    cfg = FIELDMAP[record_type]["knack_cfg"][src_app_name]
+    cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    inv_txns = knackpy_wrapper(cfg, src_app_id)
+    inv_txns = knackpy_wrapper(cfg, app_id_src)
 
     for inv_txn in inv_txns.data_raw:
-        res = handle_request(src_app_id, dest_app_id, inv_txn, record_type)
+        res = handle_request(app_id_src, app_id_dest, inv_txn, record_type)
 
     return 200, "success"
 
