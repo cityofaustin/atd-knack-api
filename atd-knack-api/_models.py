@@ -1,3 +1,5 @@
+import knackpy
+
 from _fieldmaps import FIELDMAP
 import _transforms
 from secrets import KNACK_CREDENTIALS
@@ -9,11 +11,13 @@ class Record(object):
     """
 
     def __init__(
-        self, src_app_name, dest_app_name, data, record_type=None, callback=False
+        self, app_id_src, app_id_dest, data, record_type=None, callback=False
     ):
 
-        self.app_name_dest = dest_app_name
-        self.app_name_src = src_app_name
+        self.app_id_src = app_id_src
+        self.app_id_dest = app_id_dest
+        self.app_name_src = KNACK_CREDENTIALS.get(app_id_src).get("name")
+        self.app_name_dest = KNACK_CREDENTIALS.get(app_id_dest).get("name")
         self.callback = callback
         self.data = data
         self.record_type = record_type
@@ -88,13 +92,13 @@ class Record(object):
         """
         Send the record payload to the dest app.
         """
-        obj = self.knack_cfg.get(self.dest_app_name).get("object")
-        app_id = self.dest
+        obj = self.knack_cfg.get(self.app_name_dest).get("object")
+        app_id = self.app_id_dest
         api_key = KNACK_CREDENTIALS[app_id]["api_key"]
         method = self.method
 
         res = knackpy.record(
-            record, obj_key=obj, app_id=app_id, api_key=api_key, method=method
+            self.payload, obj_key=obj, app_id=app_id, api_key=api_key, method=method
         )
 
         return res
