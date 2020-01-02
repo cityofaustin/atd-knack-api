@@ -56,7 +56,7 @@ def handle_request(src_app_id, dest_app_id, data, record_type):
     )
 
     # we flip src/dest here to update the src app with record values from the created/updated record
-    record = Record(dest_app_name, src_app_name, res, record_type=record_type)
+    record = Record(dest_app_name, src_app_name, res, record_type=record_type, callback=True)
 
     dest_obj = record.knack_cfg.get(src_app_name).get("object")
 
@@ -97,3 +97,5 @@ if __name__ == "__main__":
 
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
+
+    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814")

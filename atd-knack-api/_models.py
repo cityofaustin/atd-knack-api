@@ -1,16 +1,16 @@
-from datetime import datetime
-
 from _fieldmaps import FIELDMAP
 import _transforms
+from secrets import KNACK_CREDENTIALS
 
 class Record(object):
     """
     Transform a Knack record from a source application to a destination application.
     """
-    def __init__(self, src_app_name, dest_app_name, data, record_type=None):
+    def __init__(self, src_app_name, dest_app_name, data, record_type=None, callback=False):
 
         self.app_name_dest = dest_app_name
         self.app_name_src = src_app_name
+        self.callback = callback
         self.data = data
         self.record_type = record_type
         self.fieldmap = FIELDMAP.get(record_type)
@@ -30,13 +30,12 @@ class Record(object):
         properly filter fields
          based on the src/dest applications.
         """
-        if "finance" in self.app_name_dest.lower():
-            direction = "to_finance_system"
+        if self.callback:
+            return f"callback_{self.app_name_dest}"
 
-        elif "data_tracker" in self.app_name_dest.lower():
-            direction = "to_data_tracker"
+        else:
+            return f"to_{self.app_name_dest}"
 
-        return direction
 
     def _build_payload(self):
         """
@@ -83,6 +82,23 @@ class Record(object):
         transform_func = getattr(_transforms, transform)
         return transform_func(val)
 
+
+    # def post(self, dest_app_name, payload):
+    #     """
+    #     Send the record payload to the dest app.
+    #     """
+    #     obj = self.knack_cfg.get(dest_app_name).get("object")
+
+
+    #     res = knackpy.record(
+    #         record,
+    #         obj_key=obj_key,
+    #         app_id=auth["app_id"],
+    #         api_key=auth["api_key"],
+    #         method=method,
+    #     )
+
+    #     return res
 
 
 

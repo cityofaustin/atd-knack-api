@@ -20,10 +20,10 @@ so:
             be proceseed. This ensures that only a subset of record fields are sent to the
             destination application, and effictively enforces pre-defined business rules.
 
-            Supported values are `to_data_tracker` and `to_finance_system`.
+            Supported values are `to_data_tracker` and `to_finance_purchasing`.
 
         - apps (dict): a dicionary of knack application names, as defined in `secrets.py`.
-            These follow a standard naming convention, e.g. data_tracker_prod;
+            These follow a standard naming convention, e.g. data_tracker;
             finance_purhasing_prod. We have elected to use app names instead of app_ids,
             because app_ids may change. app_ids are  managed in `secrets.py`.
 
@@ -43,58 +43,58 @@ FIELDMAP = {
     "inventory_item": {
         "comment" : "Translates between work order records (data tracker) and inventory requests (finance system).",
         "objects": {
-            "finance_purchasing_prod": {"id": "object_19"},
-            "data_tracker_prod": {"id": "object_15"},
+            "finance_purchasing": {"id": "object_19"},
+            "data_tracker": {"id": "object_15"},
         },
         "fields": [
             {
                 "comment": "The category of item.",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_363"},
-                    "data_tracker_prod": {"id": "field_243"},
+                    "finance_purchasing": {"id": "field_363"},
+                    "data_tracker": {"id": "field_243"},
                 },
             },
             {
                 "comment": "The item name.",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_364"},
-                    "data_tracker_prod": {"id": "field_244"},
+                    "finance_purchasing": {"id": "field_364"},
+                    "data_tracker": {"id": "field_244"},
                 },
             },
             {
                 "comment": "The item's stock number (SKU)",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_720"},
-                    "data_tracker_prod": {"id": "field_3467"},
+                    "finance_purchasing": {"id": "field_720"},
+                    "data_tracker": {"id": "field_3467"},
                 },
             },
             {
                 "comment": "The item's status (active/inactive)",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_370"},
-                    "data_tracker_prod": {"id": "field_1068"},
+                    "finance_purchasing": {"id": "field_370"},
+                    "data_tracker": {"id": "field_1068"},
                 },
             },
             {
                 "comment": "The Knack record ID of the item in the finance system.",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "id"},
-                    "data_tracker_prod": {"id": "field_3450"},
+                    "finance_purchasing": {"id": "id"},
+                    "data_tracker": {"id": "field_3450"},
                 },
             },
         ],
     },
     "inventory_request": {
         "knack_cfg": {
-            "finance_purchasing_prod": {
+            "finance_purchasing": {
                 "object": "object_25",
             },
-            "data_tracker_prod": {
+            "data_tracker": {
                 "object": "object_31",
                 "scene" : "scene_514",
                 "view" : "view_2668",
@@ -103,71 +103,71 @@ FIELDMAP = {
         "fields": [
             {
                 "comment": "The work location name.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_576"},
-                    "data_tracker_prod": {"id": "field_904"},
+                    "finance_purchasing": {"id": "field_576"},
+                    "data_tracker": {"id": "field_904"},
                 },
             },
             {
                 "comment": "The work order id.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_766"},
-                    "data_tracker_prod": {"id": "field_1209"},
+                    "finance_purchasing": {"id": "field_766"},
+                    "data_tracker": {"id": "field_1209"},
                 },
             },
             {
                 "comment": "The Knack record ID of the work order in Data Tracker.",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_767"},
-                    "data_tracker_prod": {"id": "id"},
+                    "finance_purchasing": {"id": "field_767"},
+                    "data_tracker": {"id": "id"},
                 },
             },
             {
                 "comment": "The Knack record ID of the inventory request in the Finance System.",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "id"},
-                    "data_tracker_prod": {"id": "field_3444"},
+                    "finance_purchasing": {"id": "id"},
+                    "data_tracker": {"id": "field_3444"},
                 },
             },
             {
                 "comment": "The data tracker account ID which created/modified the work order",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_571",
                         "transform": "text_to_connection",
                     },
-                    "data_tracker_prod": {"id": "field_3449"},
+                    "data_tracker": {"id": "field_3449"},
                 },
             },
             {
                 "comment": "Boolean which indicates if the request has been submitted. Always set to true.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_649", "default": True},
-                    "data_tracker_prod": {"id": None},
+                    "finance_purchasing": {"id": "field_649", "default": True},
+                    "data_tracker": {"id": None},
                 },
             },
             {
                 "comment": "If the work order record has been sent to the Finance System.",
-                "directions": ["to_data_tracker"],
+                "directions": ["to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": None},
-                    "data_tracker_prod": {"id": "field_3491", "default": "SENT"},
+                    "finance_purchasing": {"id": None},
+                    "data_tracker": {"id": "field_3491", "default": "SENT"},
                 },
             },
         ],
     },
     "inventory_txn": {
         "knack_cfg": {
-            "finance_purchasing_prod": {
+            "finance_purchasing": {
                 "object": "object_23",
             },
-            "data_tracker_prod": {
+            "data_tracker": {
                 "object": "object_36",
                 "scene" : "scene_514",
                 "view" : "view_2663",
@@ -176,18 +176,18 @@ FIELDMAP = {
         "fields": [
             {
                 "comment": "Boolean which indicates if the item has been issued.",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_645"},
-                    "data_tracker_prod": {"id": "field_2476"},
+                    "finance_purchasing": {"id": "field_645"},
+                    "data_tracker": {"id": "field_2476"},
                 },
             },
             {
                 "comment": "Account ID of the data tracker user to which the item has been issued.",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_792"},
-                    "data_tracker_prod": {
+                    "finance_purchasing": {"id": "field_792"},
+                    "data_tracker": {
                         "id": "field_854",
                         "transform": "text_to_connection",
                     },
@@ -195,161 +195,153 @@ FIELDMAP = {
             },
             {
                 "comment": "Knack record ID of the transaction in the Data Tracker",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_772"},
-                    "data_tracker_prod": {"id": "id"},
+                    "finance_purchasing": {"id": "field_772"},
+                    "data_tracker": {"id": "id"},
                 },
             },
             {
                 "comment": "item quantity",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_512"},
-                    "data_tracker_prod": {"id": "field_524"},
+                    "finance_purchasing": {"id": "field_512"},
+                    "data_tracker": {"id": "field_524"},
                 },
             },
             {
                 "comment": "The Knack record ID of the transaction in the Finance system.",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "id"},
-                    "data_tracker_prod": {"id": "field_3443"},
+                    "finance_purchasing": {"id": "id"},
+                    "data_tracker": {"id": "field_3443"},
                 },
             },
             {
                 "comment": "Record ID of the inventory request in the finance system.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_632",
                         "transform": "text_to_connection",
                     },
-                    "data_tracker_prod": {"id": "field_3445"},
+                    "data_tracker": {"id": "field_3445"},
                 },
             },
             {
                 "comment": "The transaction type (work order, return, etc)",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_509"},
-                    "data_tracker_prod": {"id": "field_769"},
+                    "finance_purchasing": {"id": "field_509"},
+                    "data_tracker": {"id": "field_769"},
                 },
             },
             {
                 "comment": "The Knack record ID of the inventory item in the finance system",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_547",
                         "transform": "text_to_connection",
                     },
-                    "data_tracker_prod": {"id": "field_3451"},
+                    "data_tracker": {"id": "field_3451"},
                 },
             },
             {
                 "comment": "If the item request is approved by a supervsisor. Always true. A transaction must be approved in the app before a request is triggered.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_795", "default": True},
-                    "data_tracker_prod": {"id": None},
+                    "finance_purchasing": {"id": "field_795", "default": True},
+                    "data_tracker": {"id": None},
                 },
             },
             {
                 "comment": "If the txn record has been sent to the Finance System.",
-                "directions": ["to_data_tracker"],
+                "directions": ["to_data_tracker", "callback_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": None},
-                    "data_tracker_prod": {"id": "field_3448", "default": True},
-                },
-            },
-            {
-                "comment": "If the txn record has been sent to the Finance System.",
-                "directions": ["to_data_tracker"],
-                "apps": {
-                    "finance_purchasing_prod": {"id": None},
-                    "data_tracker_prod": {"id": "field_3453", "default": True},
+                    "finance_purchasing": {"id": None},
+                    "data_tracker": {"id": "field_3453", "default": True},
                 },
             }
         ],
     },
     "user_account": {
         "objects": {
-            "finance_purchasing_prod": {"id": "object_3"},
-            "data_tracker_prod": {"id": "object_9"},
+            "finance_purchasing": {"id": "object_3"},
+            "data_tracker": {"id": "object_9"},
         },
         "fields": [
             {
                 "comment": "The Knack record ID of the account in the Data Tracker",
-                "directions": ["to_finance_system", "to_data_tracker"],
+                "directions": ["to_finance_purchasing", "to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_791"},
-                    "data_tracker_prod": {"id": "id"},
+                    "finance_purchasing": {"id": "field_791"},
+                    "data_tracker": {"id": "id"},
                 },
             },
             {
                 "comment": "The user's first and last name",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_4"},
-                    "data_tracker_prod": {"id": "field_167_raw"},
+                    "finance_purchasing": {"id": "field_4"},
+                    "data_tracker": {"id": "field_167_raw"},
                 },
             },
             {
                 "comment": "The user's email address.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_5",
                         "transform": "handle_email",
                     },
-                    "data_tracker_prod": {"id": "field_168_raw"},
+                    "data_tracker": {"id": "field_168_raw"},
                 },
             },
             {
                 "comment": "The users password.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_6",
                         "transform": "random_password",
                     },
-                    "data_tracker_prod": {"id": "field_169"},
+                    "data_tracker": {"id": "field_169"},
                 },
             },
             {
                 "comment": "The user's status (active/disabled).",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_7"},
-                    "data_tracker_prod": {"id": "field_170"},
+                    "finance_purchasing": {"id": "field_7"},
+                    "data_tracker": {"id": "field_170"},
                 },
             },
             {
                 "comment": "The user's assigned roles. We ignore the source user role and default it to the viewer role in the Finance System.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {
+                    "finance_purchasing": {
                         "id": "field_8",
                         "default": ["profile_27"],
                     },
-                    "data_tracker_prod": {"id": None},
+                    "data_tracker": {"id": None},
                 },
             },
             {
                 "comment": "The user's business unit/workgroup.",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "field_155"},
-                    "data_tracker_prod": {"id": "field_2186"},
+                    "finance_purchasing": {"id": "field_155"},
+                    "data_tracker": {"id": "field_2186"},
                 },
             },
             {
                 "comment": "The Knack record ID of the finance system account",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_purchasing_prod": {"id": "id"},
-                    "data_tracker_prod": {"id": "field_3446"},
+                    "finance_purchasing": {"id": "id"},
+                    "data_tracker": {"id": "field_3446"},
                 },
             },
         ],
