@@ -28,19 +28,6 @@ def knackpy_wrapper(cfg, app_id):
     )
 
 
-def post_record(record, auth, obj_key, method):
-
-    res = knackpy.record(
-        record,
-        obj_key=obj_key,
-        app_id=auth["app_id"],
-        api_key=auth["api_key"],
-        method=method,
-    )
-
-    return res
-
-
 def handle_request(app_id_src, app_id_dest, data, record_type):
 
     record = Record(app_id_src, app_id_dest, data, record_type=record_type)
