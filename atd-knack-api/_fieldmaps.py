@@ -90,9 +90,15 @@ FIELDMAP = {
         ],
     },
     "inventory_request": {
-        "objects": {
-            "finance_purchasing_prod": {"id": "object_25"},
-            "data_tracker_prod": {"id": "object_31"},
+        "knack_cfg": {
+            "finance_purchasing_prod": {
+                "object": "object_25",
+            },
+            "data_tracker_prod": {
+                "object": "object_31",
+                "scene" : "scene_514",
+                "view" : "view_2668",
+            },
         },
         "fields": [
             {
@@ -146,12 +152,26 @@ FIELDMAP = {
                     "data_tracker_prod": {"id": None},
                 },
             },
+            {
+                "comment": "If the work order record has been sent to the Finance System.",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_purchasing_prod": {"id": None},
+                    "data_tracker_prod": {"id": "field_3491", "default": "SENT"},
+                },
+            },
         ],
     },
     "inventory_txn": {
-        "objects": {
-            "finance_purchasing_prod": {"id": "object_23"},
-            "data_tracker_prod": {"id": "object_36"},
+        "knack_cfg": {
+            "finance_purchasing_prod": {
+                "object": "object_23",
+            },
+            "data_tracker_prod": {
+                "object": "object_36",
+                "scene" : "scene_514",
+                "view" : "view_2663",
+            },
         },
         "fields": [
             {

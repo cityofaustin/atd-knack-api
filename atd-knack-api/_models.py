@@ -20,7 +20,7 @@ class Record(object):
 
         self.direction = self._set_direction()
         self.fields = self.fieldmap.get("fields")
-        self.objects = self.fieldmap.get("objects")
+        self.knack_cfg = self.fieldmap.get("knack_cfg")
         self.payload = self._build_payload()
         self.method = self._set_method()
 

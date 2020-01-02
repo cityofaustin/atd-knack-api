@@ -13,6 +13,7 @@ from sanic_cors import CORS, cross_origin
 from _fieldmaps import FIELDMAP
 from _logging import get_logger
 import _record
+import _inventory
 from secrets import KNACK_CREDENTIALS
 
 app = Sanic()
@@ -52,6 +53,51 @@ async def index(request):
     now = datetime.now().isoformat()
     return response.text(f"ATD Knack API online at {now}")
 
+
+@app.route("/inventory", methods=["POST"])
+async def record(request):
+    """
+    Facilitates record transformation and copying between Knack applications.
+    Currently supports the exchange of inventory-related records between
+    Data Tracker and the Finance and Purchasing System.
+    
+    This service is designed for two-way communication between Knack applications,
+    and requires appropriate conifguration in the source and destination
+    applications. Notably, records in each application will need dedicated fields
+    to store the Knack record UUID of the corresponding record in it's complement
+    application. This allows existing records to be updated, rather than created,
+    and it enables the setting of record connections across Knack objects. 
+
+    Request Parameters
+    ----------
+    src : str (required)
+        The application ID of the source application
+    
+    dest : str (required)
+        The application ID of the destination application
+    """
+    src = request.args.get("src")
+    dest = request.args.get("dest")
+    
+    if not src or not dest:
+        _403("`src` and `dest` are required.")
+
+    if not _valid_app_ids([src, dest]):
+        _403("Unknown `src` or `dest` application ID(s) provided.")
+
+    try:
+        status_code, message = _inventory.main(src, dest)
+
+    except Exception as e:
+        # todo: debug only. this is not safe!
+        # return a 5xx error instead.
+        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
+
+    if status_code == 200:
+        return response.text(message)
+
+    else:
+        raise ServerError(message, status_code=503)
 
 @app.route("/record", methods=["POST"])
 async def record(request):
@@ -145,7 +191,7 @@ async def record(request):
         return response.text(message)
 
     else:
-        raise ServerError(message, status_code=500)
+        raise ServerError(message, status_code=503)
 
 
 if __name__ == "__main__":

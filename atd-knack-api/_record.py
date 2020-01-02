@@ -35,7 +35,7 @@ def main(src_app_id, dest_app_id, record, record_type):
 
     record = Record(src_app_name, dest_app_name, record, record_type=record_type)
 
-    dest_obj = record.objects.get(dest_app_name).get("id")
+    dest_obj = record.knack_cfg.get(dest_app_name).get("object")
 
     try:
         res = post_record(
@@ -48,7 +48,7 @@ def main(src_app_id, dest_app_id, record, record_type):
     # we flip src/dest here to update the src app with record values from the created/updated record
     record = Record(dest_app_name, src_app_name, res, record_type=record_type)
 
-    dest_obj = record.objects.get(src_app_name).get("id")
+    dest_obj = record.knack_cfg.get(src_app_name).get("object")
 
     try:
         res = post_record(
