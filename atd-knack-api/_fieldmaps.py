@@ -41,7 +41,7 @@ so:
 """
 FIELDMAP = {
     "inventory_item": {
-        "comment" : "Translates between work order records (data tracker) and inventory requests (finance system).",
+        "comment": "Translates between work order records (data tracker) and inventory requests (finance system).",
         "objects": {
             "finance_purchasing": {"id": "object_19"},
             "data_tracker": {"id": "object_15"},
@@ -91,13 +91,11 @@ FIELDMAP = {
     },
     "inventory_request": {
         "knack_cfg": {
-            "finance_purchasing": {
-                "object": "object_25",
-            },
+            "finance_purchasing": {"object": "object_25"},
             "data_tracker": {
                 "object": "object_31",
-                "scene" : "scene_514",
-                "view" : "view_2668",
+                "scene": "scene_514",
+                "view": "view_2668",
             },
         },
         "fields": [
@@ -119,7 +117,11 @@ FIELDMAP = {
             },
             {
                 "comment": "The Knack record ID of the work order in Data Tracker.",
-                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
+                "directions": [
+                    "to_finance_purchasing",
+                    "to_data_tracker",
+                    "callback_data_tracker",
+                ],
                 "apps": {
                     "finance_purchasing": {"id": "field_767"},
                     "data_tracker": {"id": "id"},
@@ -127,7 +129,11 @@ FIELDMAP = {
             },
             {
                 "comment": "The Knack record ID of the inventory request in the Finance System.",
-                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
+                "directions": [
+                    "to_finance_purchasing",
+                    "to_data_tracker",
+                    "callback_data_tracker",
+                ],
                 "apps": {
                     "finance_purchasing": {"id": "id"},
                     "data_tracker": {"id": "field_3444"},
@@ -164,13 +170,11 @@ FIELDMAP = {
     },
     "inventory_txn": {
         "knack_cfg": {
-            "finance_purchasing": {
-                "object": "object_23",
-            },
+            "finance_purchasing": {"object": "object_23"},
             "data_tracker": {
                 "object": "object_36",
-                "scene" : "scene_514",
-                "view" : "view_2663",
+                "scene": "scene_514",
+                "view": "view_2663",
             },
         },
         "fields": [
@@ -195,7 +199,11 @@ FIELDMAP = {
             },
             {
                 "comment": "Knack record ID of the transaction in the Data Tracker",
-                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
+                "directions": [
+                    "to_finance_purchasing",
+                    "to_data_tracker",
+                    "callback_data_tracker",
+                ],
                 "apps": {
                     "finance_purchasing": {"id": "field_772"},
                     "data_tracker": {"id": "id"},
@@ -211,7 +219,11 @@ FIELDMAP = {
             },
             {
                 "comment": "The Knack record ID of the transaction in the Finance system.",
-                "directions": ["to_finance_purchasing", "to_data_tracker", "callback_data_tracker"],
+                "directions": [
+                    "to_finance_purchasing",
+                    "to_data_tracker",
+                    "callback_data_tracker",
+                ],
                 "apps": {
                     "finance_purchasing": {"id": "id"},
                     "data_tracker": {"id": "field_3443"},
@@ -262,7 +274,7 @@ FIELDMAP = {
                     "finance_purchasing": {"id": None},
                     "data_tracker": {"id": "field_3453", "default": True},
                 },
-            }
+            },
         ],
     },
     "user_account": {
@@ -321,10 +333,7 @@ FIELDMAP = {
                 "comment": "The user's assigned roles. We ignore the source user role and default it to the viewer role in the Finance System.",
                 "directions": ["to_finance_purchasing"],
                 "apps": {
-                    "finance_purchasing": {
-                        "id": "field_8",
-                        "default": ["profile_27"],
-                    },
+                    "finance_purchasing": {"id": "field_8", "default": ["profile_27"]},
                     "data_tracker": {"id": None},
                 },
             },
