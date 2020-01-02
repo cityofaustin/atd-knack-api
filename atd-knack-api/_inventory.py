@@ -1,6 +1,6 @@
 """
-Check Data Tracker for new inventory requests and generate a corresponding
-request in the Finance system.
+Handle inventory requests and transactions between the Data Tracker and
+the Finance System.
 """
 import logging
 from pprint import pprint as print
@@ -54,10 +54,16 @@ def main(app_id_src, app_id_dest):
 
     cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    inv_reqs = knackpy_wrapper(cfg, app_id_src)
+    if config.get("scene"):
+        """
+        We do not define a scene/view for inventory requests coming from the Finance
+        System. This is because the work orders are never updated from the Finance
+        System. So this ugly bit of logic skips this step for Finance > Data Tracker.
+        """
+        inv_reqs = knackpy_wrapper(cfg, app_id_src)
 
-    for inv_req in inv_reqs.data_raw:
-        res = handle_request(app_id_src, app_id_dest, inv_req, record_type)
+        for inv_req in inv_reqs.data_raw:
+            res = handle_request(app_id_src, app_id_dest, inv_req, record_type)
 
     record_type = "inventory_txn"
 
@@ -78,4 +84,4 @@ if __name__ == "__main__":
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
 
-    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814")
+    main("5b422c9b13774837e54ed814", "5815f29f7f7252cc2ca91c4f")
