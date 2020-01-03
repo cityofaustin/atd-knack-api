@@ -1,6 +1,5 @@
 knackpy
 requests
-sanic
-sanic-cors
+flask
+flask_cors
 pytest
-pytest-sanic

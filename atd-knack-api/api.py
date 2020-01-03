@@ -5,22 +5,20 @@ from datetime import datetime
 import logging
 import pdb
 
-from sanic import Sanic
-from sanic import response
-from sanic import exceptions
-from sanic_cors import CORS, cross_origin
+from flask import Flask, request, abort
+from flask_cors import CORS
 
 from _fieldmaps import FIELDMAP
 from _logging import get_logger
 import _inventory
 from secrets import KNACK_CREDENTIALS
 
-app = Sanic()
+app = Flask(__name__)
 CORS(app)
 
 
 def _403(error):
-    raise exceptions.Forbidden(error)
+    abort(error)
 
 
 def _valid_app_ids(app_ids):
@@ -48,13 +46,13 @@ def _valid_record_type(record_type):
 
 
 @app.route("/")
-async def index(request):
+def index():
     now = datetime.now().isoformat()
-    return response.text(f"ATD Knack API online at {now}")
+    return f"ATD Knack API online at {now}"
 
 
 @app.route("/inventory", methods=["POST"])
-async def record(request):
+def record():
     """
     Facilitates transformation and copying of inventory records between the Finance
     System and the Data Tracker.
@@ -123,10 +121,10 @@ async def record(request):
         raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
 
     if status_code == 200:
-        return response.text(message)
+        return message
 
     else:
-        raise ServerError(message, status_code=503)
+        abort(503, message)
 
 
 if __name__ == "__main__":
