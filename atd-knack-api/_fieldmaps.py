@@ -219,7 +219,7 @@ FIELDMAP = {
             },
             {
                 "comment": "item quantity",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_512"},
                     "data_tracker": {"id": "field_524"},
@@ -269,6 +269,18 @@ FIELDMAP = {
                 },
             },
             {
+                "comment": "The Knack record ID of the inventory item in the Data Tracker",
+                "directions": ["to_data_tracker"],
+                "apps": {
+                    "finance_system": {
+                        "id": "field_810",
+            
+                    },
+                    "data_tracker": {"id": "field_513", "transform": "text_to_connection"},
+                        
+                },
+            },
+            {
                 "comment": "If the item request is approved by a supervsisor. Always true. A transaction must be approved in the app before a request is triggered.",
                 "directions": ["to_finance_system"],
                 "apps": {
@@ -290,6 +302,22 @@ FIELDMAP = {
                 "apps": {
                     "finance_system": {"id": "field_789", "default": True},
                     "data_tracker": {"id": None},
+                },
+            },
+            {
+                "comment": "If the txn record has been cancelled.",
+                "directions": ["to_data_tracker", "to_finance_system"],
+                "apps": {
+                    "finance_system": {"id": "field_648",},
+                    "data_tracker": {"id": "field_2481"},
+                },
+            },
+            {
+                "comment": "A comment about the transaction.",
+                "directions": ["to_data_tracker", "to_finance_system"],
+                "apps": {
+                    "finance_system": {"id": "field_629",},
+                    "data_tracker": {"id": "field_3493"},
                 },
             },
         ],
