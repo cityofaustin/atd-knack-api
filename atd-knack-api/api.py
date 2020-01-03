@@ -1,5 +1,5 @@
 """
-Sanic server for integrating external functions and services to Knack.
+Flask server for integrating external functions and services to Knack.
 """
 from datetime import datetime
 import logging
@@ -80,14 +80,17 @@ def record():
     2. The API validates that all required values are present, and validates that the
     `src` and `dest` application IDs are defined `secrets.py`.
 
-    3. The request triggers `_inventory.py`, which fetches work order records from
-    pre-configured Knack API views which are "READY_TO_SEND".
+    3. The request triggers `_inventory.py`, which fetches work order records
+    (if the source is Data Tracker) or inventory requests (if the source is the
+    Finance Sytem), as well as related inventory trasnactions from pre-configured
+    Knack API views whose records are "READY_TO_SEND". Records are translated
+    from the source application to the destination application according to
+    `_fieldmaps.py`.
     
-    4. The work orders are translated to inventory requests, and posted to the destination
-    application.
-
-    5. The response data from the destination application is then translated to
-    the format of source application, and source application is updated accordingly.
+    4. Translated records are posted to the destination application. The Knack
+    API responds with a record from the destination application, which is translated
+    back to the format of the source application using the "callback" fieldmap,
+    and the source application is in turn updated.
     
     So, this endpoint triggers two record updates in response to
     any request:
