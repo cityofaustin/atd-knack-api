@@ -8,10 +8,10 @@ import pdb
 from flask import Flask, request, abort
 from flask_cors import CORS
 
-from _fieldmaps import FIELDMAP
-from _logging import get_logger
-import _inventory
-from secrets import KNACK_CREDENTIALS
+from atd_knack_api._fieldmaps import FIELDMAP
+from atd_knack_api._logging import get_logger
+import atd_knack_api._inventory
+from atd_knack_api.secrets import KNACK_CREDENTIALS
 
 app = Flask(__name__)
 CORS(app)
@@ -49,6 +49,13 @@ def _valid_record_type(record_type):
 def index():
     now = datetime.now().isoformat()
     return f"ATD Knack API online at {now}"
+
+
+@app.route("/config")
+def config():
+    test_a = KNACK_CREDENTIALS["knack_app_id"]
+    test_b = KNACK_CREDENTIALS["knack_app_id"]
+    return f"Test A: {test_a}, Test B: {test_b}"
 
 
 @app.route("/inventory", methods=["POST"])
