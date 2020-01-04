@@ -43,16 +43,6 @@ done;
 echo "Saving changes..."
 echo $ZAPPA_SETTINGS > zappa_settings.json;
 
-
-echo "----------------------";
-echo "zappa_settings.json:";
-echo "----------------------";
-cat zappa_settings.json;
-echo -e "\n\n";
-
-
-echo -e "\n\n";
-
 # Deploy (assume the function is already there)
 echo "Running Zappa : $(date)";
 pipenv run zappa update $ZAPPA_ENVIRONMENT;
