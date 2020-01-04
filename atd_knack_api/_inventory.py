@@ -9,8 +9,8 @@ import pdb
 import knackpy
 import requests
 
-from _fieldmaps import FIELDMAP
-from _models import Record
+from atd_knack_api._fieldmaps import FIELDMAP
+from atd_knack_api._models import Record
 from secrets import *
 
 

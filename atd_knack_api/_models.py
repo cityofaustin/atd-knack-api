@@ -1,8 +1,8 @@
 import knackpy
 
-from _fieldmaps import FIELDMAP
-import _transforms
-from secrets import KNACK_CREDENTIALS
+from atd_knack_api._fieldmaps import FIELDMAP
+import atd_knack_api._transforms
+from atd_knack_api.secrets import KNACK_CREDENTIALS
 
 
 class Record(object):

@@ -1,14 +1,20 @@
 {
     "dev": {
-        "app_function": "atd-knack-api/api.app",
-        "aws_region": "us-east-1",
-        "domain": "knack-api.austinmobility.io",
-        "certificate_arn" : "arn:aws:acm:us-east-1:295525487728:certificate/897c4900-3a77-4754-a636-2a79d1335b84",
-        "profile_name": "default",
-        "project_name": "atd-knack-api",
-        "runtime": "python3.6",
-        "s3_bucket": "atd-knack-api-dev"
+      "app_function": "atd_knack_api.api.app",
+      "aws_region": "us-east-1",
+      "profile_name": null,
+      "project_name": "atd-knack-api",
+      "runtime": "python3.7",
+      "s3_bucket": "atd-knack-api"
+    },
+    "production": {
+      "app_function": "atd_knack_api.api.app",
+      "aws_region": "us-east-1",
+      "profile_name": null,
+      "project_name": "atd-knack-api",
+      "runtime": "python3.7",
+      "s3_bucket": "atd-knack-api",
+      "domain": "knack-api.austinmobility.io",
+      "certificate_arn" : "arn:aws:acm:us-east-1:295525487728:certificate/fa707400-dbf1-44e5-8494-9dd3aed1f4c0"
     }
-}
-
-        
+  }
