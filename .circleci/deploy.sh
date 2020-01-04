@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e;
 
 # Determine the configuration name
 if [ "$CIRCLE_BRANCH" == "production" ]; then
