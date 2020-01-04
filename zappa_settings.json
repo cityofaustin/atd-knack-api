@@ -1,0 +1,14 @@
+{
+    "dev": {
+        "app_function": "atd-knack-api/api.app",
+        "aws_region": "us-east-1",
+        "domain": "knack-api.austinmobility.io",
+        "certificate_arn" : "arn:aws:acm:us-east-1:295525487728:certificate/897c4900-3a77-4754-a636-2a79d1335b84",
+        "profile_name": "default",
+        "project_name": "atd-knack-api",
+        "runtime": "python3.6",
+        "s3_bucket": "atd-knack-api-dev"
+    }
+}
+
+        
