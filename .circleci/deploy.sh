@@ -56,4 +56,4 @@ echo -e "\n\n";
 
 # Deploy (assume the function is already there)
 echo "Running Zappa : $(date)";
-echo "pipenv run zappa update $ZAPPA_ENVIRONMENT";
+pipenv run zappa update $ZAPPA_ENVIRONMENT;
