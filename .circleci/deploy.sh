@@ -21,7 +21,7 @@ echo -e "\n\n";
 
 # Download the configuration
 echo "Downloading cloud configuration";
-#aws s3 cp s3://atd-knack-api/config.json config.json;
+aws s3 cp $DEPLOYMENT_CONFIG_FILE config.json;
 
 # Load current Zappa Settings
 echo "Loading current settings from zappa file...";
