@@ -136,3 +136,4 @@ workflow.md
 log/
 temp/
 .vscode/
+.idea/
