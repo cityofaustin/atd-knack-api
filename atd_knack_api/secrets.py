@@ -1,6 +1,4 @@
 import os
+import json
 
-KNACK_CREDENTIALS = {
-    "app_id": os.environ.get("knack_app_id", ""),
-    "api_key": os.environ.get("knack_app_key", ""),
-}
+KNACK_CREDENTIALS = json.loads(os.environ.get("knack_app_config", "{}"))
