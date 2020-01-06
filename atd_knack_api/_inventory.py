@@ -11,7 +11,7 @@ import requests
 
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._models import Record
-from secrets import *
+from atd_knack_api.secrets import KNACK_CREDENTIALS
 
 
 def knackpy_wrapper(cfg, app_id):

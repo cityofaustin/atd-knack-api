@@ -1,7 +1,7 @@
 import knackpy
 
 from atd_knack_api._fieldmaps import FIELDMAP
-import atd_knack_api._transforms
+from atd_knack_api import _transforms
 from atd_knack_api.secrets import KNACK_CREDENTIALS
 
 

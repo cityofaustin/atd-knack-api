@@ -3,14 +3,13 @@ Flask server for integrating external functions and services to Knack.
 """
 from datetime import datetime
 import logging
-import pdb
 
 from flask import Flask, request, abort
 from flask_cors import CORS
 
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._logging import get_logger
-import atd_knack_api._inventory
+from atd_knack_api import _inventory
 from atd_knack_api.secrets import KNACK_CREDENTIALS
 
 app = Flask(__name__)
@@ -53,10 +52,8 @@ def index():
 
 @app.route("/config")
 def config():
-    test_a = KNACK_CREDENTIALS["knack_app_id"]
-    test_b = KNACK_CREDENTIALS["knack_app_id"]
-    return f"Test A: {test_a}, Test B: {test_b}"
-
+    knack_app_config = str(isinstance(KNACK_CREDENTIALS, dict))
+    return f"KNACK_CREDENTIALS loaded: {knack_app_config}"
 
 @app.route("/inventory", methods=["POST"])
 def record():
@@ -128,7 +125,7 @@ def record():
     except Exception as e:
         # todo: debug only. this is not safe!
         # return a 5xx error instead.
-        raise exceptions.ServerError(f"{e.__class__.__name__}: {e}")
+        abort(503, e)
 
     if status_code == 200:
         return message

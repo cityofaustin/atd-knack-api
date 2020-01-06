@@ -33,7 +33,6 @@ for CONFIG_KEY in $(jq -c --raw-output ".${ZAPPA_ENVIRONMENT} | keys[]" config.j
     if [[ $CONFIG_KEY_VALUE != *"{"* ]]; then
         CONFIG_KEY_VALUE="\"$CONFIG_KEY_VALUE\"";
     fi
-    echo $CONFIG_KEY_VALUE;
 
     # Assign the current key and it's value to our current zappa settings, and save (patch) ...
     echo "Generating new zappa settings...";
