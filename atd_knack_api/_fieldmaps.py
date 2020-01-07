@@ -251,10 +251,26 @@ FIELDMAP = {
             },
             {
                 "comment": "The transaction type (work order, return, etc)",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_509"},
                     "data_tracker": {"id": "field_769"},
+                },
+            },
+            {
+                "comment": "The status of any return request.",
+                "directions": ["to_finance_system", "to_data_tracker"],
+                "apps": {
+                    "finance_system": {"id": "field_813"},
+                    "data_tracker": {"id": "field_3510"},
+                },
+            },
+            {
+                "comment": "The quantity of any return request.",
+                "directions": ["to_finance_system", "to_data_tracker"],
+                "apps": {
+                    "finance_system": {"id": "field_513"},
+                    "data_tracker": {"id": "field_3509"},
                 },
             },
             {
