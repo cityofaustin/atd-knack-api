@@ -7,7 +7,7 @@ import logging
 from flask import Flask, request, abort
 from flask_cors import CORS
 
-# import _setpath
+# import _setpath # uncomment this for local development
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._logging import get_logger
 from atd_knack_api import _inventory
