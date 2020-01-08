@@ -218,6 +218,16 @@ FIELDMAP = {
                 },
             },
             {
+                "comment": "Knack record ID of the related work order in the Data Tracker",
+                "directions": [
+                    "to_data_tracker",
+                ],
+                "apps": {
+                    "finance_system": {"id": "field_816"},
+                    "data_tracker": {"id": "field_514", "transform" : "text_to_connection"},
+                },
+            },
+            {
                 "comment": "item quantity",
                 "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
@@ -306,7 +316,7 @@ FIELDMAP = {
             },
             {
                 "comment": "If the txn record has been sent to the Finance System.",
-                "directions": ["to_data_tracker", "callback_data_tracker"],
+                "directions": ["callback_data_tracker"],
                 "apps": {
                     "finance_system": {"id": None},
                     "data_tracker": {"id": "field_3453", "default": True},
@@ -314,7 +324,7 @@ FIELDMAP = {
             },
             {
                 "comment": "If the txn record has been sent to the Data Tracker.",
-                "directions": ["to_data_tracker", "callback_finance_system"],
+                "directions": ["callback_finance_system"],
                 "apps": {
                     "finance_system": {"id": "field_789", "default": True},
                     "data_tracker": {"id": None},
