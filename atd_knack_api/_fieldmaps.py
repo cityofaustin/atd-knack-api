@@ -37,8 +37,8 @@ so:
             - default : used to set the default value. required if no field `id` is present.
                 ie, this value is set on the destination payload when no src data is 
                 provided. it is defined on the `dest` application field definition.
-
 """
+
 FIELDMAP = {
     "inventory_item": {
         "comment": "Translates between work order records (data tracker) and inventory requests (finance system).",
@@ -195,7 +195,7 @@ FIELDMAP = {
                 },
             },
             {
-                "comment": "Account ID of the data tracker user to which the item has been issued.",
+                "comment": "Account ID of the data tracker user to whom the item has been issued or returned by.",
                 "directions": ["to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_792"},
@@ -215,6 +215,16 @@ FIELDMAP = {
                 "apps": {
                     "finance_system": {"id": "field_772"},
                     "data_tracker": {"id": "id"},
+                },
+            },
+            {
+                "comment": "Knack record ID of the related work order in the Data Tracker",
+                "directions": [
+                    "to_data_tracker",
+                ],
+                "apps": {
+                    "finance_system": {"id": "field_816"},
+                    "data_tracker": {"id": "field_514", "transform" : "text_to_connection"},
                 },
             },
             {
@@ -251,10 +261,26 @@ FIELDMAP = {
             },
             {
                 "comment": "The transaction type (work order, return, etc)",
-                "directions": ["to_finance_system"],
+                "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_509"},
                     "data_tracker": {"id": "field_769"},
+                },
+            },
+            {
+                "comment": "The status of any return request.",
+                "directions": ["to_finance_system", "to_data_tracker"],
+                "apps": {
+                    "finance_system": {"id": "field_813"},
+                    "data_tracker": {"id": "field_3510"},
+                },
+            },
+            {
+                "comment": "The quantity of any return request.",
+                "directions": ["to_finance_system", "to_data_tracker"],
+                "apps": {
+                    "finance_system": {"id": "field_513"},
+                    "data_tracker": {"id": "field_3509"},
                 },
             },
             {
@@ -290,7 +316,7 @@ FIELDMAP = {
             },
             {
                 "comment": "If the txn record has been sent to the Finance System.",
-                "directions": ["to_data_tracker", "callback_data_tracker"],
+                "directions": ["callback_data_tracker"],
                 "apps": {
                     "finance_system": {"id": None},
                     "data_tracker": {"id": "field_3453", "default": True},
@@ -298,7 +324,7 @@ FIELDMAP = {
             },
             {
                 "comment": "If the txn record has been sent to the Data Tracker.",
-                "directions": ["to_data_tracker", "callback_finance_system"],
+                "directions": ["callback_finance_system"],
                 "apps": {
                     "finance_system": {"id": "field_789", "default": True},
                     "data_tracker": {"id": None},
