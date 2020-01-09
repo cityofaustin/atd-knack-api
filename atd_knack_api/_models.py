@@ -1,5 +1,7 @@
+from collections import OrderedDict
 import knackpy
 
+# import _setpath  # uncomment this for local development
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api import _transforms
 from atd_knack_api.secrets import KNACK_CREDENTIALS
@@ -10,9 +12,7 @@ class Record(object):
     Transform a Knack record from a source application to a destination application.
     """
 
-    def __init__(
-        self, app_id_src, app_id_dest, data, record_type=None, callback=False
-    ):
+    def __init__(self, app_id_src, app_id_dest, data, record_type=None, callback=False):
 
         self.app_id_src = app_id_src
         self.app_id_dest = app_id_dest
@@ -74,6 +74,32 @@ class Record(object):
             payload[dest_field_id] = val
 
         return payload
+
+    def debug(self):
+        """
+        Print a helpful comparison of the input data vs the output payload.
+        """
+
+        print("\n========== Record Data ==========")
+        print(
+            f"src : {self.app_name_src}\ndest : {self.app_name_dest}\ndirection : {self.direction}"
+        )
+
+        for field in self.fields:
+            d = OrderedDict({})
+
+            if self.direction not in field["directions"]:
+                continue
+
+            src_key = field.get("apps").get(self.app_name_src).get("id")
+            dest_key = field.get("apps").get(self.app_name_dest).get("id")
+
+            print(f"comment: {field.get('comment')}")
+            print(f"src: {self.data.get(src_key)}")
+            print(f"dest: {self.payload.get(dest_key)}")
+            print("-------------------------")
+
+        return
 
     def _set_method(self):
         """
