@@ -37,8 +37,8 @@ so:
             - default : used to set the default value. required if no field `id` is present.
                 ie, this value is set on the destination payload when no src data is 
                 provided. it is defined on the `dest` application field definition.
-
 """
+
 FIELDMAP = {
     "inventory_item": {
         "comment": "Translates between work order records (data tracker) and inventory requests (finance system).",
@@ -195,7 +195,7 @@ FIELDMAP = {
                 },
             },
             {
-                "comment": "Account ID of the data tracker user to which the item has been issued.",
+                "comment": "Account ID of the data tracker user to whom the item has been issued or returned by.",
                 "directions": ["to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_792"},
