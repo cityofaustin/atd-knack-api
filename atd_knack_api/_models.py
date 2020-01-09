@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import knackpy
 
-import _setpath  # uncomment this for local development
+# import _setpath  # uncomment this for local development
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api import _transforms
 from atd_knack_api.secrets import KNACK_CREDENTIALS
