@@ -4,11 +4,11 @@ the Finance System.
 """
 import logging
 from pprint import pprint as print
-import pdb
 
 import knackpy
 import requests
 
+# import _setpath # uncomment this for local development
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._models import Record
 from atd_knack_api.secrets import KNACK_CREDENTIALS
@@ -33,7 +33,6 @@ def handle_request(app_id_src, app_id_dest, data, record_type):
     record = Record(app_id_src, app_id_dest, data, record_type=record_type)
 
     res = record.send()
-
     """
     We flip src/dest here to "callback" to the src app with record values from the 
     created/updated record.
@@ -48,6 +47,7 @@ def handle_request(app_id_src, app_id_dest, data, record_type):
 
 
 def main(app_id_src, app_id_dest):
+
     app_name_src = KNACK_CREDENTIALS[app_id_src]["name"]
 
     record_type = "inventory_request"
