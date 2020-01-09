@@ -85,7 +85,7 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
 
     # test finance to data tracker
-    main("5b422c9b13774837e54ed814", "5815f29f7f7252cc2ca91c4f")
+    # main("5b422c9b13774837e54ed814", "5815f29f7f7252cc2ca91c4f")
 
     # test data tracker to finance
-    main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814")
+    # main("5815f29f7f7252cc2ca91c4f", "5b422c9b13774837e54ed814")
