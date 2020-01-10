@@ -11,7 +11,9 @@ from flask_cors import CORS
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._logging import get_logger
 from atd_knack_api import _inventory
+from atd_knack_api import _work_order_flex_notes
 from atd_knack_api.secrets import KNACK_CREDENTIALS
+
 
 app = Flask(__name__)
 CORS(app)
@@ -57,7 +59,7 @@ def config():
     return f"KNACK_CREDENTIALS loaded: {knack_app_config}"
 
 @app.route("/inventory", methods=["POST"])
-def record():
+def inventory():
     """
     Facilitates transformation and copying of inventory records between the Finance
     System and the Data Tracker.
@@ -134,6 +136,34 @@ def record():
     else:
         abort(503, message)
 
+
+@app.route("/work_order_flex_notes", methods=["POST"])
+def record():
+    """
+    Trigger the work order flex note script, which fetches and attaches flex notes related 
+    to markings work ordres.
+    """
+    src = request.args.get("src")
+    
+    if not src:
+        _403("`src` app ID is required required.")
+
+    if not _valid_app_ids([src]):
+        _403("Unknown `src` or `dest` application ID(s) provided.")
+
+    try:
+        status_code, message = _work_order_flex_notes.main(src)
+
+    except Exception as e:
+        # todo: debug only. this is not safe!
+        # return a 5xx error instead.
+        abort(503, e)
+
+    if status_code == 200:
+        return message
+
+    else:
+        abort(503, message)
 
 if __name__ == "__main__":
     # todo: remove debug logging
