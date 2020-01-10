@@ -228,6 +228,14 @@ FIELDMAP = {
                 },
             },
             {
+                "comment": "The Finance System Account ID of the user who modified the transaction in the Data Tracker.",
+                "directions": ["to_finance_system"],
+                "apps": {
+                    "finance_system": {"id": "field_549", "transform" : "text_to_connection"},
+                    "data_tracker": {"id": "field_3447"},
+                },
+            },
+            {
                 "comment": "item quantity",
                 "directions": ["to_finance_system", "to_data_tracker"],
                 "apps": {
