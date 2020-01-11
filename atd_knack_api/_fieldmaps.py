@@ -154,6 +154,17 @@ FIELDMAP = {
                     "data_tracker": {"id": "field_3449"},
                 },
             },
+            # {
+            #     "comment": "The record ID of the task order in the Finance System. Not working currently. ",
+            #     "directions": ["to_finance_system"],
+            #     "apps": {
+            #         "finance_system": {
+            #             "id": "field_696",
+            #             "transform": "text_to_connection",
+            #         },
+            #         "data_tracker": {"id": "field_3505"},
+            #     },
+            # },
             {
                 "comment": "Boolean which indicates if the request has been submitted. Always set to true.",
                 "directions": ["to_finance_system"],
@@ -225,6 +236,14 @@ FIELDMAP = {
                 "apps": {
                     "finance_system": {"id": "field_816"},
                     "data_tracker": {"id": "field_514", "transform" : "text_to_connection"},
+                },
+            },
+            {
+                "comment": "The Finance System Account ID of the user who modified the transaction in the Data Tracker.",
+                "directions": ["to_finance_system"],
+                "apps": {
+                    "finance_system": {"id": "field_549", "transform" : "text_to_connection"},
+                    "data_tracker": {"id": "field_3447"},
                 },
             },
             {
