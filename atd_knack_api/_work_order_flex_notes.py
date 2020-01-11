@@ -74,6 +74,7 @@ def main(app_id):
                 app_id=auth["app_id"],
                 api_key=auth["api_key"],
                 method="update",
+                timeout=50,
             )
 
     return 200, f"{len(payload)} records processed."
