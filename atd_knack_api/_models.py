@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import knackpy
 
-# import _setpath  # uncomment this for local development
+import _setpath  # uncomment this for local development
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api import _transforms
 from atd_knack_api.secrets import KNACK_CREDENTIALS
@@ -98,6 +98,7 @@ class Record(object):
             print(f"src: {self.data.get(src_key)}")
             print(f"dest: {self.payload.get(dest_key)}")
             print("-------------------------")
+        print("\n========== End Record Data ==========")
 
         return
 
