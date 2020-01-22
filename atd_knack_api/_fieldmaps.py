@@ -155,6 +155,17 @@ FIELDMAP = {
                 },
             },
             {
+                "comment": "The record ID of the task order in the Finance System. Not working currently. ",
+                "directions": ["to_finance_system"],
+                "apps": {
+                    "finance_system": {
+                        "id": "field_696",
+                        "transform": "text_to_connection",
+                    },
+                    "data_tracker": {"id": "field_3514"},
+                },
+            },
+            {
                 "comment": "Boolean which indicates if the request has been submitted. Always set to true.",
                 "directions": ["to_finance_system"],
                 "apps": {
@@ -176,8 +187,8 @@ FIELDMAP = {
         "knack_cfg": {
             "finance_system": {
                 "object": "object_23",
-                "scene" : "scene_84",
-                "view" : "view_694"
+                "scene": "scene_84",
+                "view": "view_694",
             },
             "data_tracker": {
                 "object": "object_36",
@@ -219,12 +230,24 @@ FIELDMAP = {
             },
             {
                 "comment": "Knack record ID of the related work order in the Data Tracker",
-                "directions": [
-                    "to_data_tracker",
-                ],
+                "directions": ["to_data_tracker"],
                 "apps": {
                     "finance_system": {"id": "field_816"},
-                    "data_tracker": {"id": "field_514", "transform" : "text_to_connection"},
+                    "data_tracker": {
+                        "id": "field_514",
+                        "transform": "text_to_connection",
+                    },
+                },
+            },
+            {
+                "comment": "The Finance System Account ID of the user who modified the transaction in the Data Tracker.",
+                "directions": ["to_finance_system"],
+                "apps": {
+                    "finance_system": {
+                        "id": "field_549",
+                        "transform": "text_to_connection",
+                    },
+                    "data_tracker": {"id": "field_3447"},
                 },
             },
             {
@@ -241,7 +264,7 @@ FIELDMAP = {
                     "to_finance_system",
                     "to_data_tracker",
                     "callback_data_tracker",
-                    "callback_finance_system"
+                    "callback_finance_system",
                 ],
                 "apps": {
                     "finance_system": {"id": "id"},
@@ -298,12 +321,11 @@ FIELDMAP = {
                 "comment": "The Knack record ID of the inventory item in the Data Tracker",
                 "directions": ["to_data_tracker"],
                 "apps": {
-                    "finance_system": {
-                        "id": "field_810",
-            
+                    "finance_system": {"id": "field_810"},
+                    "data_tracker": {
+                        "id": "field_513",
+                        "transform": "text_to_connection",
                     },
-                    "data_tracker": {"id": "field_513", "transform": "text_to_connection"},
-                        
                 },
             },
             {
@@ -334,7 +356,7 @@ FIELDMAP = {
                 "comment": "If the txn record has been cancelled.",
                 "directions": ["to_data_tracker", "to_finance_system"],
                 "apps": {
-                    "finance_system": {"id": "field_648",},
+                    "finance_system": {"id": "field_648"},
                     "data_tracker": {"id": "field_2481"},
                 },
             },
@@ -342,7 +364,7 @@ FIELDMAP = {
                 "comment": "A comment about the transaction.",
                 "directions": ["to_data_tracker", "to_finance_system"],
                 "apps": {
-                    "finance_system": {"id": "field_629",},
+                    "finance_system": {"id": "field_629"},
                     "data_tracker": {"id": "field_3493"},
                 },
             },
@@ -374,10 +396,7 @@ FIELDMAP = {
                 "comment": "The user's email address.",
                 "directions": ["to_finance_system"],
                 "apps": {
-                    "finance_system": {
-                        "id": "field_5",
-                        "transform": "handle_email",
-                    },
+                    "finance_system": {"id": "field_5", "transform": "handle_email"},
                     "data_tracker": {"id": "field_168_raw"},
                 },
             },
@@ -385,10 +404,7 @@ FIELDMAP = {
                 "comment": "The users password.",
                 "directions": ["to_finance_system"],
                 "apps": {
-                    "finance_system": {
-                        "id": "field_6",
-                        "transform": "random_password",
-                    },
+                    "finance_system": {"id": "field_6", "transform": "random_password"},
                     "data_tracker": {"id": "field_169"},
                 },
             },
