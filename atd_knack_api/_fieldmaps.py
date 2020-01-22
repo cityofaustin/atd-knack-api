@@ -225,7 +225,7 @@ FIELDMAP = {
                 ],
                 "apps": {
                     "finance_system": {"id": "field_772"},
-                    "data_tracker": {"id": "id"},
+                    "data_tracker": {"id": "id", "transform": "text_to_connection"},
                 },
             },
             {
