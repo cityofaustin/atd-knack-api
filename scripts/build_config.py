@@ -24,5 +24,5 @@ for env in config.keys():
     config_json = json.dumps(config[env][AWS_KEY][CONFIG_KEY])
     config[env][AWS_KEY][CONFIG_KEY] = config_json
 
-with open("config2.json", "w") as fout:
+with open(FNAME_JSON, "w") as fout:
     fout.write(json.dumps(config))
