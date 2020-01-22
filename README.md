@@ -24,6 +24,12 @@ In each of these files, find the import statement for `_setpath` near the top of
 
 You'll also need to enable the helper script which fetches API credentials from AWS, and loads them as environmental variables. in `api.py`, uncomment the module import for `from scripts import set_env_vars`.
 
+### Run the App
+
+```bash
+$ python atd_knack_api/api.py
+```
+
 ## Deployment
 
 The API is deployed to AWS Lambda with CircleCI. The production branch is automatically pushed to `knack-api.austinmobility.io/`. All other branches are pushed to the staging endpoint.
