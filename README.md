@@ -8,7 +8,7 @@ A Knack integration server powered by Flask.
 
 ### Install Requirements
 
-```python
+```bash
 $ pip install -r requirements.txt
 ```
 
