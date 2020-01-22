@@ -137,3 +137,7 @@ log/
 temp/
 .vscode/
 .idea/
+
+# Ensure API key files are excluded
+config.json
+config.yml
