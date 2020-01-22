@@ -16,13 +16,13 @@ AWS_KEY = "aws_environment_variables"
 CONFIG_KEY = "knack_app_config"
 
 
-def get_config(env, bucket, filename):
+def get_config(bucket, filename):
     s3 = boto3.resource("s3")
     obj = s3.Object(bucket, filename)
     config = obj.get()["Body"].read()
     return json.loads(config)
 
-config = get_config(ENV, BUCKET, FNAME_JSON)
+config = get_config(BUCKET, FNAME_JSON)
 
 for env in config.keys():
     config[env][AWS_KEY][CONFIG_KEY] = json.loads(config[env][AWS_KEY][CONFIG_KEY])
