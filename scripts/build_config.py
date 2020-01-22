@@ -15,8 +15,6 @@ ENVS = ["production", "dev"]
 AWS_KEY = "aws_environment_variables"
 CONFIG_KEY = "knack_app_config"
 
-config_dict = {}
-
 with open(FNAME_YAML, "r") as fin:
     config = yaml.load(fin.read())
 
