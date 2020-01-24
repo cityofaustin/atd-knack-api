@@ -175,12 +175,17 @@ inventory_txn:
     - to_data_tracker
   - apps:
       data_tracker:
-        id: field_3447
+        id: field_168
       finance_system:
         id: field_549
         transform:
-          name: text_to_connection
-    comment: The Finance System Account ID of the user who modified the transaction
+          name: lookup_connection
+          config:
+              lookup_field_dest: field_5
+              object_key_dest: object_3
+              pre_transform: handle_html
+
+    comment: The Finance System Account ID of the email of the user who modified the transaction
       in the Data Tracker.
     directions:
     - to_finance_system
@@ -243,16 +248,17 @@ inventory_txn:
     - to_data_tracker
   - apps:
       data_tracker:
-        id: field_3451
+        id: field_3467
       finance_system:
         id: field_547
         transform:
           name: lookup_connection
           config:
-              lookup_field_dest: abc123
-              object_key_dest: abc123
+              lookup_field_dest: field_720
+              object_key_dest: object_19
+              pre_transform: handle_html
 
-    comment: The Knack record ID of the inventory item in the finance system
+    comment: The inventory item connection in the Finance System
     directions:
     - to_finance_system
   - apps:
@@ -345,7 +351,7 @@ user_account:
       finance_system:
         id: field_5
         transform:
-          name: handle_email
+          name: handle_html
     comment: The user's email address.
     directions:
     - to_finance_system
