@@ -1,5 +1,39 @@
+from bs4 import BeautifulSoup
+
 import random
 import string
+
+from atd_knack_api._utils import knackpy_wrapper, knack_filter
+
+
+
+def lookup_connection(val, config, auth):
+    """
+    This transform is used for the setting of a connection field in the destination app.
+
+    It queries the destination app for a record matching the input value (first apply any
+    "pre-transform" that was supplied). If a matching record is found, the record ID is
+    returned inside a list, as is required by the Knack API.
+    """
+    if config.get("pre_transform"):
+        """
+        Apply another transform function on the input value. this is useful for say, parsing
+        an email address from a field
+        """
+        transform_func = globals().get(config["pre_transform"])
+        val = transform_func(val)
+    
+    filters = knack_filter(config.get("lookup_field_dest"), val)
+    kn = knackpy_wrapper({"obj" : config["object_key_dest"]}, auth, filters)
+    
+    if (kn.data_raw):
+        # we take the first record that matches our filter. assume the `lookup_field_dest` val is unique
+        # we transform it to a knack connection list
+        return [kn.data_raw[0]["id"]]
+    else:
+        return None
+
+    
 
 def text_to_connection(val):
     """
@@ -10,15 +44,15 @@ def text_to_connection(val):
     else:
         return []
 
-def handle_email(d):
+
+def handle_html(html):
     """
-    Receive a raw Knack email dict and return the email str
+    Receive a single Knack html tag and value.
+
+    E.g., email address
     """
-    if d.get("email"):
-        return d.get("email")
-    else:
-        # this should never happen. email address is required for user accounts
-        return ""
+    soup = BeautifulSoup(html, "html5lib")
+    return soup.get_text()
 
 
 def random_password(val, length=30):
