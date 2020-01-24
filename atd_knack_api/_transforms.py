@@ -6,8 +6,18 @@ import string
 from atd_knack_api._utils import knackpy_wrapper, knack_filter
 
 
+"""
+The lookup cache obviate's the need to make repeated lookup calls to the api. For example,
+multiple transactions may be connected to the same work order record ID. Instead of fetching
+this value for each transaction record, the value is stored in this global cache. The keys
+in the cache follow the format `{lookup_field_dest}__&__{val}`. E.g. a work order record
+would be stored as `WRK20-019384__&__am49c04mc4834al2
+"""
+LOOKUP_CACHE = {}
+CACHE_DELIMTTER = "__&__"
 
 def lookup_connection(val, config, auth):
+    print(LOOKUP_CACHE)
     """
     This transform is used for the setting of a connection field in the destination app.
 
@@ -23,13 +33,22 @@ def lookup_connection(val, config, auth):
         transform_func = globals().get(config["pre_transform"])
         val = transform_func(val)
     
-    filters = knack_filter(config.get("lookup_field_dest"), val)
+    lookup_field_dest = config.get("lookup_field_dest")
+    cache_key = f"{lookup_field_dest}{CACHE_DELIMTTER}{val}"
+
+    if cache_key in LOOKUP_CACHE:
+        return cache_key.split(CACHE_DELIMTTER)[1]
+
+    # if value is not cached, fetch it from Knack
+    filters = knack_filter(lookup_field_dest, val)
     kn = knackpy_wrapper({"obj" : config["object_key_dest"]}, auth, filters)
     
     if (kn.data_raw):
         # we take the first record that matches our filter. assume the `lookup_field_dest` val is unique
         # we transform it to a knack connection list
-        return [kn.data_raw[0]["id"]]
+        val_transformed = [kn.data_raw[0]["id"]]
+        LOOKUP_CACHE[f"{lookup_field_dest}{CACHE_DELIMTTER}{val}"] = val_transformed
+        return val_transformed
     else:
         return None
 
