@@ -69,7 +69,9 @@ class Record(object):
                 val = self.data.get(src_field_id)
 
             if transform:
-                val = self._transform(val, transform)
+                func = transform.get("name")
+                config = transform.get("config")
+                val = self._transform(val, func, config)
 
             payload[dest_field_id] = val
 
@@ -111,9 +113,12 @@ class Record(object):
         else:
             return "create"
 
-    def _transform(self, val, transform):
+    def _transform(self, val, transform, config):
         transform_func = getattr(_transforms, transform)
-        return transform_func(val)
+        if config:
+            return transform_func(val, config)
+        else:
+            return transform_func(val)
 
     def send(self):
         """
