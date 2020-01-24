@@ -90,7 +90,8 @@ inventory_request:
         id: field_3449
       finance_system:
         id: field_571
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
     comment: The data tracker account ID which created/modified the work order
     directions:
     - to_finance_system
@@ -99,7 +100,8 @@ inventory_request:
         id: field_3514
       finance_system:
         id: field_696
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
     comment: 'The record ID of the task order in the Finance System. Not working currently. '
     directions:
     - to_finance_system
@@ -143,7 +145,8 @@ inventory_txn:
   - apps:
       data_tracker:
         id: field_854
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
       finance_system:
         id: field_792
     comment: Account ID of the data tracker user to whom the item has been issued
@@ -163,7 +166,8 @@ inventory_txn:
   - apps:
       data_tracker:
         id: field_514
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
       finance_system:
         id: field_816
     comment: Knack record ID of the related work order in the Data Tracker
@@ -174,7 +178,8 @@ inventory_txn:
         id: field_3447
       finance_system:
         id: field_549
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
     comment: The Finance System Account ID of the user who modified the transaction
       in the Data Tracker.
     directions:
@@ -204,7 +209,8 @@ inventory_txn:
         id: field_3445
       finance_system:
         id: field_632
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
     comment: Record ID of the inventory request in the finance system.
     directions:
     - to_finance_system
@@ -240,14 +246,20 @@ inventory_txn:
         id: field_3451
       finance_system:
         id: field_547
-        transform: text_to_connection
+        transform:
+          name: lookup_connection
+          config:
+              lookup_field_dest: abc123
+              object_key_dest: abc123
+
     comment: The Knack record ID of the inventory item in the finance system
     directions:
     - to_finance_system
   - apps:
       data_tracker:
         id: field_513
-        transform: text_to_connection
+        transform:
+          name: text_to_connection
       finance_system:
         id: field_810
     comment: The Knack record ID of the inventory item in the Data Tracker
@@ -332,7 +344,8 @@ user_account:
         id: field_168_raw
       finance_system:
         id: field_5
-        transform: handle_email
+        transform:
+          name: handle_email
     comment: The user's email address.
     directions:
     - to_finance_system
@@ -341,7 +354,8 @@ user_account:
         id: field_169
       finance_system:
         id: field_6
-        transform: random_password
+        transform:
+          name: random_password
     comment: The users password.
     directions:
     - to_finance_system
