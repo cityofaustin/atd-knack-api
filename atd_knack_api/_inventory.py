@@ -5,7 +5,6 @@ the Finance System.
 import logging
 from pprint import pprint as print
 
-import knackpy
 import requests
 
 # import _setpath # uncomment this for local development
@@ -13,26 +12,12 @@ import requests
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._models import Record
 from atd_knack_api.secrets import KNACK_CREDENTIALS
-
-
-def knackpy_wrapper(cfg, app_id):
-    """
-    Fetch records which need to be processed from a pre-filtered
-    Knack view which does not require authentication.
-    """
-    return knackpy.Knack(
-        scene=cfg["scene"],
-        view=cfg["view"],
-        app_id=app_id,
-        page_limit=100,
-        rows_per_page=1000,
-    )
+from atd_knack_api._utils import knackpy_wrapper
 
 
 def handle_request(app_id_src, app_id_dest, data, record_type):
 
     record = Record(app_id_src, app_id_dest, data, record_type=record_type)
-
     res = record.send()
     """
     We flip src/dest here to "callback" to the src app with record values from the 
@@ -85,4 +70,4 @@ if __name__ == "__main__":
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
 
-    main("src_app_id_here", "dest_app_id_here")
+    main("5e2216f0cbf8d9001616b034", "5b422c9b13774837e54ed814")
