@@ -98,6 +98,7 @@ class Record(object):
             print(f"src: {self.data.get(src_key)}")
             print(f"dest: {self.payload.get(dest_key)}")
             print("-------------------------")
+        print("\n========== End Record Data ==========")
 
         return
 
