@@ -116,7 +116,11 @@ class Record(object):
     def _transform(self, val, transform, config):
         transform_func = getattr(_transforms, transform)
         if config:
-            return transform_func(val, config)
+            """
+            Special transforms may have a config and require authentication. So we pass the
+            config along with the auth if a config is present in the transform definition.
+            """
+            return transform_func(val, config, KNACK_CREDENTIALS[self.app_id_dest])
         else:
             return transform_func(val)
 
