@@ -9,6 +9,7 @@ import knackpy
 import requests
 
 # import _setpath # uncomment this for local development
+# from scripts import set_env_vars
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._models import Record
 from atd_knack_api.secrets import KNACK_CREDENTIALS
@@ -23,8 +24,8 @@ def knackpy_wrapper(cfg, app_id):
         scene=cfg["scene"],
         view=cfg["view"],
         app_id=app_id,
-        page_limit=1,
-        rows_per_page=10,
+        page_limit=100,
+        rows_per_page=1000,
     )
 
 

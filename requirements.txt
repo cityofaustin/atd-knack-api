@@ -3,4 +3,5 @@ requests
 flask
 flask_cors
 pytest
+pyyaml
 zappa
