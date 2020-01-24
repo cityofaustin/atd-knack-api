@@ -46,7 +46,7 @@ def main(app_id_src, app_id_dest):
         System. This is because the work orders are never updated from the Finance
         System. So this ugly bit of logic skips this step for Finance > Data Tracker.
         """
-        inv_reqs = knackpy_wrapper(cfg, app_id_src)
+        inv_reqs = knackpy_wrapper(cfg, KNACK_CREDENTIALS[app_id_src])
 
         for inv_req in inv_reqs.data_raw:
             res = handle_request(app_id_src, app_id_dest, inv_req, record_type)
@@ -55,7 +55,7 @@ def main(app_id_src, app_id_dest):
 
     cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    inv_txns = knackpy_wrapper(cfg, app_id_src)
+    inv_txns = knackpy_wrapper(cfg, KNACK_CREDENTIALS[app_id_src])
 
     for inv_txn in inv_txns.data_raw:
         res = handle_request(app_id_src, app_id_dest, inv_txn, record_type)
@@ -70,4 +70,4 @@ if __name__ == "__main__":
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
 
-    main("5e2216f0cbf8d9001616b034", "5b422c9b13774837e54ed814")
+    main("", "")
