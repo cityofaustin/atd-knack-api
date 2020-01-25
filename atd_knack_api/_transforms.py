@@ -17,7 +17,9 @@ LOOKUP_CACHE = {}
 CACHE_DELIMTTER = "__&__"
 
 def lookup(val, config, auth):
-    print(LOOKUP_CACHE)
+
+    if not val:
+        return None
     """
     This transform is used for fetching the knack record ID from the the destination
     application, and returning the record ID as a str or list, as defined in the
