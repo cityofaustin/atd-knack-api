@@ -27,7 +27,7 @@ inventory_request:
               object_key_dest: object_31 # work_orders_signals
               connection: false
       finance_system:
-        id: null
+        id: field_766
     comment: Find Knack record ID of the work order in Data Tracker by looking up the work order ID
     directions:
     - to_data_tracker
