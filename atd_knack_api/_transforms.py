@@ -81,7 +81,7 @@ def handle_html(html):
     if not html:
         return None
 
-    soup = BeautifulSoup(html, "html5lib")
+    soup = BeautifulSoup(html)
     return soup.get_text()
 
 
