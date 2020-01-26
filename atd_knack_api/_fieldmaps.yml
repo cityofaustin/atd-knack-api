@@ -58,7 +58,7 @@ inventory_request:
     - callback_data_tracker
   - apps:
       data_tracker:
-        id: field_168 # modified_by
+        id: field_2716.field_168 # modified_by.email
       finance_system:
         id: field_571 # created_by
         transform:
@@ -150,6 +150,15 @@ inventory_txn:
     - callback_finance_system
   - apps:
       data_tracker:
+        id: field_3443
+      finance_system:
+        id: field_508
+    comment: The transaction ID of the transaction in the finance system
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  - apps:
+      data_tracker:
         id: id
         transform:
           name: lookup
@@ -217,7 +226,6 @@ inventory_txn:
     comment: Lookup the Knack record ID of the transaction in the Finance system using the transaction ID.
     directions:
     - to_finance_system
-    - to_data_tracker
     - callback_finance_system
   - apps:
       data_tracker:
