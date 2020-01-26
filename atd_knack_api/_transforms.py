@@ -43,11 +43,11 @@ def lookup(val, config, auth):
     cache_key = f"{lookup_field_dest}{CACHE_DELIMTTER}{val}"
 
     if cache_key in LOOKUP_CACHE:
-        return LOOKUP_CACHE(cache_key)
+        return LOOKUP_CACHE[cache_key]
 
     # if value is not cached, fetch it from Knack
     filters = knack_filter(lookup_field_dest, val)
-    
+
     kn = knackpy_wrapper({"obj" : config["object_key_dest"]}, auth, filters)
     
     if (kn.data_raw):
