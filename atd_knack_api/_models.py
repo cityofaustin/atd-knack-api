@@ -50,7 +50,6 @@ class Record(object):
         payload = {}
 
         for field in self.fields:
-
             if self.direction not in field.get("directions"):
                 # ignore fields that do not support the direction of data flow
                 continue
@@ -62,7 +61,11 @@ class Record(object):
             transform = field.get("apps").get(self.app_name_dest).get("transform")
 
             if not src_field_id:
-                # field is not present in src data; use default value.
+                """
+                Field is not present in src data; use default value.
+                note that default val is only applied when the src field
+                is not defined in field map!
+                """
                 val = field.get("apps").get(self.app_name_dest).get("default")
 
             else:
