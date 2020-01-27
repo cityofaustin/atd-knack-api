@@ -1,4 +1,4 @@
-# todo: inventory request id to data tracker/callback
+# todo: modified by account ID data tracker work order to inventory request
 inventory_request:
   fields:
   - apps:
@@ -286,16 +286,16 @@ inventory_txn:
     - to_finance_system
   - apps:
       data_tracker:
-        id: field_513 # inventory_item (connection)
+        id: field_513 # inventory_item (connection) on inventory_trasnactions
         transform:
           name: lookup
           config:
             object_key_dest: object_15 # inventory_items
-            lookup_field_dest: field_3467
+            lookup_field_dest: field_3467 # stock_number
             pre_transform: handle_html # stock_number
             connection: true
       finance_system:
-        id: field_720 # stock_number
+        id: field_547.field_720 # inventory_item connection on inventory transactions.stock_number
     comment: The inventory item connection in the Data Tracker
     directions:
     - to_data_tracker
