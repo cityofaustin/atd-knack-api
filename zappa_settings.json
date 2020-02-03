@@ -5,7 +5,9 @@
       "profile_name": null,
       "project_name": "atd-knack-api",
       "runtime": "python3.7",
-      "s3_bucket": "atd-knack-api"
+      "s3_bucket": "atd-knack-api",
+      "domain": "knack-api-dev.austinmobility.io",
+      "certificate_arn": "arn:aws:acm:us-east-1:295525487728:certificate/501359a3-3bb0-4cf6-b608-42922a0a5176"
     },
     "production": {
       "app_function": "atd_knack_api.api.app",
