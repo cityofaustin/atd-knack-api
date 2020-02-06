@@ -19,6 +19,14 @@ inventory_request:
     - to_finance_system
   - apps:
       data_tracker:
+        id: field_459
+      finance_system:
+        id: field_821
+    comment: The work order status
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
         id: id
         transform:
           name: lookup
@@ -58,7 +66,7 @@ inventory_request:
     - callback_data_tracker
   - apps:
       data_tracker:
-        id: field_2716.field_168 # modified_by.email
+        id: field_1421.field_168 # modified_by.email
       finance_system:
         id: field_571 # created_by
         transform:
