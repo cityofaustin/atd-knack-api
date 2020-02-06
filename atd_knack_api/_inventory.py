@@ -5,7 +5,6 @@ the Finance System.
 import logging
 from pprint import pprint as print
 
-import knackpy
 import requests
 
 # import _setpath # uncomment this for local development
@@ -13,26 +12,12 @@ import requests
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._models import Record
 from atd_knack_api.secrets import KNACK_CREDENTIALS
-
-
-def knackpy_wrapper(cfg, app_id):
-    """
-    Fetch records which need to be processed from a pre-filtered
-    Knack view which does not require authentication.
-    """
-    return knackpy.Knack(
-        scene=cfg["scene"],
-        view=cfg["view"],
-        app_id=app_id,
-        page_limit=100,
-        rows_per_page=1000,
-    )
+from atd_knack_api._utils import knackpy_wrapper
 
 
 def handle_request(app_id_src, app_id_dest, data, record_type):
 
     record = Record(app_id_src, app_id_dest, data, record_type=record_type)
-
     res = record.send()
     """
     We flip src/dest here to "callback" to the src app with record values from the 
@@ -61,7 +46,7 @@ def main(app_id_src, app_id_dest):
         System. This is because the work orders are never updated from the Finance
         System. So this ugly bit of logic skips this step for Finance > Data Tracker.
         """
-        inv_reqs = knackpy_wrapper(cfg, app_id_src)
+        inv_reqs = knackpy_wrapper(cfg, KNACK_CREDENTIALS[app_id_src])
 
         for inv_req in inv_reqs.data_raw:
             res = handle_request(app_id_src, app_id_dest, inv_req, record_type)
@@ -70,7 +55,7 @@ def main(app_id_src, app_id_dest):
 
     cfg = FIELDMAP[record_type]["knack_cfg"][app_name_src]
 
-    inv_txns = knackpy_wrapper(cfg, app_id_src)
+    inv_txns = knackpy_wrapper(cfg, KNACK_CREDENTIALS[app_id_src])
 
     for inv_txn in inv_txns.data_raw:
         res = handle_request(app_id_src, app_id_dest, inv_txn, record_type)
@@ -84,5 +69,4 @@ if __name__ == "__main__":
 
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
-
-    main("src_app_id_here", "dest_app_id_here")
+    main("src", "dest")  # replace with app ids for local dev

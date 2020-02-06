@@ -1,0 +1,62 @@
+# direction = to finance
+# password - DONE
+# email - Need transform
+# name - Need transform
+# division - DONE
+# user roles - need transform
+# stautus = inactive (if new)
+# primary key
+# lookups? no
+# handlers? yes
+
+accounts:
+  fields:
+  - apps:
+      data_tracker:
+        id: field_169
+      finance_system:
+        id: field_6
+        transform:
+          name: random_password
+    comment: The users password. Randomly set with the expectation that the end user will not login ot the destination system with this passwords. (They would use the COACD login)
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_168
+      finance_system:
+        id: field_5
+        transform:
+          name: TODO 
+    comment: the user's email address
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_2186
+      finance_system:
+        id: field_155
+        transform:
+          name: 
+    comment: the name of user's ATD division
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_167
+      finance_system:
+        id: field_4
+        transform:
+          name: TODO
+    comment: The user's name
+    directions:
+  - apps:
+      data_tracker:
+        id: null # we default user role in finance system
+      finance_system:
+        id: field_8
+        transform:
+          name: TODO
+    comment: The account's user roles
+    directions:
+    - to_finance_system

@@ -50,7 +50,6 @@ class Record(object):
         payload = {}
 
         for field in self.fields:
-
             if self.direction not in field.get("directions"):
                 # ignore fields that do not support the direction of data flow
                 continue
@@ -62,14 +61,20 @@ class Record(object):
             transform = field.get("apps").get(self.app_name_dest).get("transform")
 
             if not src_field_id:
-                # field is not present in src data; use default value.
+                """
+                Field is not present in src data; use default value.
+                note that default val is only applied when the src field
+                is not defined in field map!
+                """
                 val = field.get("apps").get(self.app_name_dest).get("default")
 
             else:
                 val = self.data.get(src_field_id)
 
             if transform:
-                val = self._transform(val, transform)
+                func = transform.get("name")
+                config = transform.get("config")
+                val = self._transform(val, func, config)
 
             payload[dest_field_id] = val
 
@@ -111,9 +116,16 @@ class Record(object):
         else:
             return "create"
 
-    def _transform(self, val, transform):
+    def _transform(self, val, transform, config):
         transform_func = getattr(_transforms, transform)
-        return transform_func(val)
+        if config:
+            """
+            Special transforms may have a config and require authentication. So we pass the
+            config along with the auth if a config is present in the transform definition.
+            """
+            return transform_func(val, config, KNACK_CREDENTIALS[self.app_id_dest])
+        else:
+            return transform_func(val)
 
     def send(self):
         """
