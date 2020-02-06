@@ -8,25 +8,10 @@ import pdb
 import knackpy
 
 # import _setpath
+# from scripts import set_env_vars
 from atd_knack_api._knack_config import MARKINGS_WORK_ORDERS_FLEX_NOTES as cfg
 from atd_knack_api.secrets import KNACK_CREDENTIALS
-
-
-def filter_flex_note(field, value):
-    return [{"field": f"{field}", "operator": "contains", "value": f"{value}"}]
-
-
-def knackpy_wrapper(cfg, auth, filters=None):
-
-    return knackpy.Knack(
-        scene=cfg["scene"],
-        view=cfg["view"],
-        obj=cfg["obj"],
-        ref_obj=cfg["ref_obj"],
-        app_id=auth["app_id"],
-        api_key=auth["api_key"],
-        filters=filters,
-    )
+from atd_knack_api._utils import knackpy_wrapper, knack_filter
 
 
 def main(app_id):
@@ -50,7 +35,7 @@ def main(app_id):
         # fetch all flex notes connected to each service request
         # the Knack view is filtered to exclude the "XFERIOSK" flex note
         # which is just "allow record to be published to external interfaces"
-        _filter = filter_flex_note(cfg["flex_notes"]["sr_number_field_id"], sr_number)
+        _filter = knack_filter(cfg["flex_notes"]["sr_number_field_id"], sr_number)
 
         flex_notes = knackpy_wrapper(cfg["flex_notes"], auth, filters=_filter)
 

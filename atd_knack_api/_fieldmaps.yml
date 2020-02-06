@@ -1,0 +1,364 @@
+# todo: modified by account ID data tracker work order to inventory request
+inventory_request:
+  fields:
+  - apps:
+      data_tracker:
+        id: field_904
+      finance_system:
+        id: field_576
+    comment: The work location name.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_1209 # atd_work_order_id
+      finance_system:
+        id: field_766 # work order id
+    comment: The work order id.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_459
+      finance_system:
+        id: field_821
+    comment: The work order status
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: id
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_1209 # work_order_id
+              object_key_dest: object_31 # work_orders_signals
+              connection: false
+      finance_system:
+        id: field_766
+    comment: Find Knack record ID of the work order in Data Tracker by looking up the work order ID
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  - apps:
+      data_tracker:
+        id: field_3444 # finance_inventory_purchase_request_id
+      finance_system:
+        id: id
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_570 # inventory_request_id
+              object_key_dest: object_25 # inventory_requests
+              connection: false
+    comment: Find the Knack record ID of the inventory request in the Finance System by looking up the purchase request ID.
+    directions:
+    - to_finance_system
+    - callback_finance_system
+  - apps:
+      data_tracker:
+        id: field_3444 # finance_inventory_purchase_request_id
+      finance_system:
+        id: field_570 # inventory_request_id
+    comment: The purchase request ID in the Finance system.
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  - apps:
+      data_tracker:
+        id: field_1421.field_168 # modified_by.email
+      finance_system:
+        id: field_571 # created_by
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_5 # email
+              object_key_dest: object_3 #accounts
+              pre_transform: handle_html
+              connection: true
+    comment: The data tracker account ID which created/modified the work order
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_1277 # task_order
+      finance_system:
+        id: field_696 # task_order (connection)
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_695 # task_order
+              object_key_dest: object_32 # task_orders
+              pre_transform: handle_html
+              connection: true
+    comment: The record ID of the task order in the Finance System.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: null
+      finance_system:
+        default: true
+        id: field_649
+    comment: Boolean which indicates if the request has been submitted. Always set
+      to true.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        default: SENT
+        id: field_3491
+      finance_system:
+        id: null
+    comment: If the work order record has been sent to the Finance System.
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  knack_cfg:
+    data_tracker:
+      object: object_31
+      scene: scene_514
+      view: view_2668
+    finance_system:
+      object: object_25
+inventory_txn:
+  fields:
+  - apps:
+      data_tracker:
+        id: field_2476
+      finance_system:
+        id: field_645
+    comment: Boolean which indicates if the item has been issued.
+    directions:
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_854 # issued_to_person
+        transform:
+          name: lookup
+          config:
+            object_key_dest: object_9 # accounts
+            lookup_field_dest: field_168 # email
+            pre_transform: handle_html
+            connection: true
+      finance_system:
+        id: field_549 # customer
+    comment: Account ID of the data tracker user to whom the item has been issued
+      or returned by.
+    directions:
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_770 # transaction_id
+      finance_system:
+        id: field_772 # DATA_TRACKER_TRANSACTION_ID
+    comment: The transaction ID of the transaction in the Data Tracker
+    directions:
+    - to_finance_system
+    - callback_finance_system
+  - apps:
+      data_tracker:
+        id: field_3443
+      finance_system:
+        id: field_508
+    comment: The transaction ID of the transaction in the finance system
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  - apps:
+      data_tracker:
+        id: id
+        transform:
+          name: lookup
+          config:
+            object_key_dest: object_36
+            lookup_field_dest: field_770
+            connection: false
+      finance_system:
+        id: field_772 #DATA_TRACKER_TRANSACTION_ID
+    comment: Lookup the knack record ID of the transaction in the Data Tracker using the transaction ID
+    directions:
+    - to_data_tracker
+    - callback_data_tracker
+  - apps:
+      data_tracker:
+        id: field_514 # work_order_signals (connection)
+        transform:
+          name: lookup
+          config:
+            object_key_dest: object_31 # work_orders_signals
+            lookup_field_dest: field_1209 # work_order_id
+            pre_transform: handle_html
+            connection: true
+      finance_system:
+        id: field_766 # work order id
+    comment: Work Order ID of the related work order in the Data Tracker
+    directions:
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_168 # accounts - email
+      finance_system:
+        id: field_549 # customer
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_5 # accounts
+              object_key_dest: object_3 # email
+              pre_transform: handle_html
+              connection: true
+    comment: The Finance System Account ID of the email of the user who modified the transaction
+      in the Data Tracker.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_524
+      finance_system:
+        id: field_512
+    comment: item quantity
+    directions:
+    - to_finance_system
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_3443 # FINANCE_SYSTEM_TXN_ID
+      finance_system:
+        id: id
+        transform:
+          name: lookup
+          config:
+            lookup_field_dest: field_508 # TRANSACTION_ID
+            object_key_dest: object_23 # inventory_transactions
+            connection: false
+    comment: Lookup the Knack record ID of the transaction in the Finance system using the transaction ID.
+    directions:
+    - to_finance_system
+    - callback_finance_system
+  - apps:
+      data_tracker:
+        id: field_1209 # atd_work_order_id
+      finance_system:
+        id: field_632 # inventory_request (connection)
+        transform:
+          name: lookup
+          config:
+            lookup_field_dest: field_766 # work order ID
+            object_key_dest: object_25 # inventory requests
+            pre_transform: handle_html
+            connection: true
+    comment: Record ID of the inventory request in the finance system.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_769
+      finance_system:
+        id: field_509
+    comment: The transaction type (work order, return, etc)
+    directions:
+    - to_finance_system
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_3510
+      finance_system:
+        id: field_813
+    comment: The status of any return request.
+    directions:
+    - to_finance_system
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_3509
+      finance_system:
+        id: field_513
+    comment: The quantity of any return request.
+    directions:
+    - to_finance_system
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: field_3467 # stock_number
+      finance_system:
+        id: field_547 # inventory_item (connection)
+        transform:
+          name: lookup
+          config:
+              lookup_field_dest: field_720 # stock_number
+              object_key_dest: object_19 # inventory items
+              pre_transform: handle_html
+              connection: true
+    comment: The inventory item connection in the Finance System
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_513 # inventory_item (connection) on inventory_trasnactions
+        transform:
+          name: lookup
+          config:
+            object_key_dest: object_15 # inventory_items
+            lookup_field_dest: field_3467 # stock_number
+            pre_transform: handle_html # stock_number
+            connection: true
+      finance_system:
+        id: field_547.field_720 # inventory_item connection on inventory transactions.stock_number
+    comment: The inventory item connection in the Data Tracker
+    directions:
+    - to_data_tracker
+  - apps:
+      data_tracker:
+        id: null
+      finance_system:
+        default: true
+        id: field_795
+    comment: If the item request is approved by a supervsisor. Always true. A transaction
+      must be approved in the app before a request is triggered.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        default: true
+        id: field_3453
+      finance_system:
+        id: null
+    comment: If the txn record has been sent to the Finance System.
+    directions:
+    - callback_data_tracker
+  - apps:
+      data_tracker:
+        id: null
+      finance_system:
+        default: true
+        id: field_789
+    comment: If the txn record has been sent to the Data Tracker.
+    directions:
+    - callback_finance_system
+  - apps:
+      data_tracker:
+        id: field_2481
+      finance_system:
+        id: field_648
+    comment: If the txn record has been cancelled.
+    directions:
+    - to_data_tracker
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_3493
+      finance_system:
+        id: field_629
+    comment: A comment about the transaction.
+    directions:
+    - to_data_tracker
+    - to_finance_system
+  knack_cfg:
+    data_tracker:
+      object: object_36
+      scene: scene_514
+      view: view_2663
+    finance_system:
+      object: object_23
+      scene: scene_84
+      view: view_694
