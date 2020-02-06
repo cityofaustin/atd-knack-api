@@ -69,5 +69,4 @@ if __name__ == "__main__":
 
     logger = get_logger("_inventory_txn")
     logger.setLevel(logging.DEBUG)
-
-    main("", "")
+    main("src", "dest")  # replace with app ids for local dev
