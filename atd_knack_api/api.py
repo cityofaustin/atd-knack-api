@@ -24,9 +24,11 @@ CORS(app)
 def forbidden(e):
     return jsonify(error=str(e)), 403
 
+
 @app.errorhandler(503)
 def forbidden(e):
     return jsonify(error=str(e)), 503
+
 
 def _valid_environments(app_ids):
     """
@@ -145,7 +147,10 @@ def inventory():
         abort(403, description="Unknown `src` or `dest` application ID(s) provided.")
 
     if not _valid_environments([src, dest]):
-        abort(403, description="`src` and `dest` environments do not match. Check your Knack JS.")
+        abort(
+            403,
+            description="`src` and `dest` environments do not match. Check your Knack JS.",
+        )
 
     try:
         status_code, message = _inventory.main(src, dest)
