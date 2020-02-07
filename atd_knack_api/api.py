@@ -26,7 +26,7 @@ def forbidden(e):
 
 
 @app.errorhandler(503)
-def forbidden(e):
+def server_error(e):
     return jsonify(error=str(e)), 503
 
 
