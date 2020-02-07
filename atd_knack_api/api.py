@@ -7,7 +7,7 @@ import logging
 from flask import Flask, request, abort
 from flask_cors import CORS
 
-# import _setpath # uncomment this for local development 
+# import _setpath # uncomment this for local development
 # from scripts import set_env_vars
 from atd_knack_api._fieldmaps import FIELDMAP
 from atd_knack_api._logging import get_logger
@@ -24,9 +24,25 @@ def _403(error):
     abort(error)
 
 
+def _valid_environments(app_ids):
+    """
+    Ensure that the src/dest environments match. E.g., prod app to prod app
+    or dev app to dev app. This is a failsafe, because the copying of Knack
+    applications can result in production custom JS embedded in a test
+    app.
+    """
+    env0 = KNACK_CREDENTIALS[app_ids[0]]["env"].strip()
+    env1 = KNACK_CREDENTIALS[app_ids[1]]["env"].strip()
+
+    if env0 == env1:
+        return True
+    else:
+        return False
+
+
 def _valid_app_ids(app_ids):
     """
-    Ensure that the requested application IDs exist in the credential store.
+    Ensure that the requested application IDs exist in the credential store
     """
     for app_id in app_ids:
         try:
@@ -58,6 +74,7 @@ def index():
 def config():
     knack_app_config = str(isinstance(KNACK_CREDENTIALS, dict))
     return f"KNACK_CREDENTIALS loaded: {knack_app_config}"
+
 
 @app.route("/inventory", methods=["POST"])
 def inventory():
@@ -116,12 +133,15 @@ def inventory():
     """
     src = request.args.get("src")
     dest = request.args.get("dest")
-    
+
     if not src or not dest:
         _403("`src` and `dest` are required.")
 
     if not _valid_app_ids([src, dest]):
         _403("Unknown `src` or `dest` application ID(s) provided.")
+
+    if not _valid_environments([src, dest]):
+        _403("`src` and `dest` environments do not match. Check your Knack JS.")
 
     try:
         status_code, message = _inventory.main(src, dest)
@@ -145,7 +165,7 @@ def record():
     to markings work ordres.
     """
     src = request.args.get("src")
-    
+
     if not src:
         _403("`src` app ID is required required.")
 
@@ -165,6 +185,7 @@ def record():
 
     else:
         abort(503, message)
+
 
 if __name__ == "__main__":
     # todo: remove debug logging
