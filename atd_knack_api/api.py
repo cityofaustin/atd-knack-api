@@ -4,7 +4,7 @@ Flask server for integrating external functions and services to Knack.
 from datetime import datetime
 import logging
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 
 # import _setpath # uncomment this for local development
@@ -20,9 +20,13 @@ app = Flask(__name__)
 CORS(app)
 
 
-def _403(error):
-    abort(error)
+@app.errorhandler(403)
+def forbidden(e):
+    return jsonify(error=str(e)), 403
 
+@app.errorhandler(503)
+def forbidden(e):
+    return jsonify(error=str(e)), 503
 
 def _valid_environments(app_ids):
     """
@@ -135,27 +139,26 @@ def inventory():
     dest = request.args.get("dest")
 
     if not src or not dest:
-        _403("`src` and `dest` are required.")
+        abort(403, description="`src` and `dest` are required.")
 
     if not _valid_app_ids([src, dest]):
-        _403("Unknown `src` or `dest` application ID(s) provided.")
+        abort(403, description="Unknown `src` or `dest` application ID(s) provided.")
 
     if not _valid_environments([src, dest]):
-        _403("`src` and `dest` environments do not match. Check your Knack JS.")
+        abort(403, description="`src` and `dest` environments do not match. Check your Knack JS.")
 
     try:
         status_code, message = _inventory.main(src, dest)
 
     except Exception as e:
         # todo: debug only. this is not safe!
-        # return a 5xx error instead.
-        abort(503, e)
+        abort(503, description=e)
 
     if status_code == 200:
         return message
 
     else:
-        abort(503, message)
+        abort(503, description=message)
 
 
 @app.route("/work_order_flex_notes", methods=["POST"])
@@ -167,24 +170,23 @@ def record():
     src = request.args.get("src")
 
     if not src:
-        _403("`src` app ID is required required.")
+        abort(403, description="`src` app ID is required required.")
 
     if not _valid_app_ids([src]):
-        _403("Unknown `src` or `dest` application ID(s) provided.")
+        abort(403, description="Unknown `src` or `dest` application ID(s) provided.")
 
     try:
         status_code, message = _work_order_flex_notes.main(src)
 
     except Exception as e:
         # todo: debug only. this is not safe!
-        # return a 5xx error instead.
-        abort(503, e)
+        abort(503, description=e)
 
     if status_code == 200:
         return message
 
     else:
-        abort(503, message)
+        abort(503, description=message)
 
 
 if __name__ == "__main__":
