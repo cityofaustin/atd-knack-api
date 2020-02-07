@@ -19,9 +19,17 @@ inventory_request:
     - to_finance_system
   - apps:
       data_tracker:
-        id: field_459
+        id: id
       finance_system:
-        id: field_821
+        id: field_822
+    comment: The Knack record ID of the work order in the data tracker. Used to generate a URL to the work order details.
+    directions:
+    - to_finance_system
+  - apps:
+      data_tracker:
+        id: field_459 # work_order_status
+      finance_system:
+        id: field_821 # work_order_status
     comment: The work order status
     directions:
     - to_finance_system
