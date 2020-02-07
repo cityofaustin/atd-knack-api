@@ -146,11 +146,12 @@ def inventory():
     if not _valid_app_ids([src, dest]):
         abort(403, description="Unknown `src` or `dest` application ID(s) provided.")
 
-    if not _valid_environments([src, dest]):
-        abort(
-            403,
-            description="`src` and `dest` environments do not match. Check your Knack JS.",
-        )
+    # TODO: enable this once we have a finance system test env
+    # if not _valid_environments([src, dest]):
+    #     abort(
+    #         403,
+    #         description="`src` and `dest` environments do not match. Check your Knack JS.",
+    #     )
 
     try:
         status_code, message = _inventory.main(src, dest)
