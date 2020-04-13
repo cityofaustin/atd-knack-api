@@ -48,4 +48,4 @@ def main(app_id):
 
 
 if __name__ == "__main__":
-    main("5d13ae5b438091000ac0197d")
+    main("")
